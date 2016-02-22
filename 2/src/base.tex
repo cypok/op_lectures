@@ -10,6 +10,7 @@
   basicstyle=\ttfamily,
   keywordstyle=\bfseries\color{codeKeyword},
   stringstyle=\color{codeString},
+  commentstyle=\color{codeComment},
   showstringspaces=false
 }
 
@@ -32,7 +33,7 @@
 
 \hypersetup{pdfauthor={Владимир Парфиненко}}
 \title{Основы программирования}
-\subtitle{Лекция № 2, XX февраля 2016 г.}
+\subtitle{Лекция № 2, 3 марта 2016 г.}
 \date{}
 \institute{
   \vspace{1em}
@@ -180,7 +181,10 @@
 
   С точки зрения компьютера $(\hex{FF} + \hex{01}) \mod 2^8 = \hex{00}$.
 
-  То есть $X + 1 = 0$. Чему равно $X$?
+  \visible<2->{
+    \vspace{1em}
+    То есть $X + 1 = 0$. Чему равно $X$?
+  }
 
 \end{frame}
 
@@ -206,17 +210,19 @@
 
 \begin{frame}{Переполнение}
 
-  Беззнаковые 8-битные:
-  \begin{itemize}
-    \item $255 + 1 = \bin{1111 1111} + 1 = \bin{0000 0000} = 0$,
-    \item $0 - 1 = \bin{0000 0000} - 1 = \bin{1111 1111} = 255$.
-  \end{itemize}
+  \begin{block}{Беззнаковые 8-битные:}
+    \begin{itemize}
+      \item $255 + 1 = \bin{1111 1111} + 1 = \bin{0000 0000} = 0$,
+      \item $0 - 1 = \bin{0000 0000} - 1 = \bin{1111 1111} = 255$.
+    \end{itemize}
+  \end{block}
 
-  Знаковые 8-битные:
-  \begin{itemize}
-    \item $127 + 1 = \bin{0111 1111} + 1 = \bin{1000 0000} = -128$,
-    \item $-128 - 1 = \bin{1000 0000} - 1 = \bin{0111 1111} = 127$.
-  \end{itemize}
+  \begin{block}{Знаковые 8-битные:}
+    \begin{itemize}
+      \item $127 + 1 = \bin{0111 1111} + 1 = \bin{1000 0000} = -128$,
+      \item $-128 - 1 = \bin{1000 0000} - 1 = \bin{0111 1111} = 127$.
+    \end{itemize}
+  \end{block}
 
 \end{frame}
 
@@ -238,9 +244,9 @@
 
 \end{frame}
 
-\section{Целочисленные типы данных в C и~операции над ними}
+\section{Целочисленные типы данных в \eng{C} и~операции над ними}
 
-\begin{frame}{Беззнаковые целочисленные типы в C}
+\begin{frame}{Беззнаковые целочисленные типы в \eng{C}}
 
   \begin{table}
     \begin{tabular}{ccc}
@@ -257,7 +263,7 @@
 
 \end{frame}
 
-\begin{frame}{Знаковые целочисленные типы в C}
+\begin{frame}{Знаковые целочисленные типы в \eng{C}}
 
   \begin{table}
     \begin{tabular}{ccrl}
@@ -287,16 +293,17 @@
       \code{a \% b} & остаток от деления \\
       \code{-a}     & отрицание \\
       \code{a++}    & инкремент \\
-      \code{a--}    & декремент \\
+      \code{a-{}-}  & декремент \\
       \hline
     \end{tabular}
   \end{table}
 
 \end{frame}
 
+\begin{frame}[fragile]{Загадка: модуль числа неотрицательный?}
 
-\defverbatim[colored]\lstAbs{
-\begin{lstlisting}[language=C]
+  \begin{block}{Вычисление модуля введенного числа:}
+    \begin{lstlisting}[language=C]
     int x;
     printf("Enter number: ");
     scanf("%d", &x);
@@ -304,32 +311,18 @@
         x = -x;
     }
     printf("Absolute value = %d\n", x);
-\end{lstlisting}
-}
-
-\defverbatim[colored]\lstAbsLogA{
-\begin{lstlisting}
-    Enter number: -37
-    Absolute value = 37
-\end{lstlisting}
-}
-
-\defverbatim[colored]\lstAbsLogB{
-\begin{lstlisting}[escapeinside={/**}{**/}]
-    Enter number: -2147483648
-    Absolute value = -2147483648
-\end{lstlisting}
-}
-
-\begin{frame}{Загадка: модуль числа неотрицательный?}
-
-  \begin{block}{Вычисление модуля введенного числа:}
-    \lstAbs
+    \end{lstlisting}
   \end{block}
 
   \begin{block}{Исполнение:}
-    \only<1>{\lstAbsLogA}
-    \only<2>{\lstAbsLogB}
+    \begin{onlyenv}<1>\begin{lstlisting}
+    Enter number: -37
+    Absolute value = 37
+    \end{lstlisting}\end{onlyenv}
+    \begin{onlyenv}<2>\begin{lstlisting}
+    Enter number: -2147483648
+    Absolute value = -2147483648
+    \end{lstlisting}\end{onlyenv}
   \end{block}
 
 \end{frame}
@@ -387,6 +380,7 @@
     \item влево (\code{x <{}< n}) эквивалентен умножению на $2^n$,
     \item вправо (\code{x >{}> n}) эквивалентен делению на $2^n$.
   \end{itemize}
+  \note{Сдвиг вправо для отрицательных чисел не специфицирован.\\}
 
   \begin{block}{Пример:}
     \reduceBlockEqSpacing
@@ -411,21 +405,186 @@
 
 \begin{frame}{Битовые операции на практике}
 
-  \begin{block}{Чтение бита номер \code{i} из \code{x}:}
+  \begin{block}{Чтение \code{i}-го бита из \code{x}:}
     \code{bit = (x >{}> i) \& 1;}
   \end{block}
 
-  \begin{block}{Выставление бита номер \code{i} в \code{x}:}
+  \begin{block}{Выставление \code{i}-го бита в \code{x}:}
     \code{x = x | (1 <{}< i);}
   \end{block}
 
-  \begin{block}{Сброс бита номер \code{i} в \code{x}:}
+  \begin{block}{Сброс \code{i}-го бита в \code{x}:}
     \code{x = x \& \textasciitilde(1 <{}< i);}
   \end{block}
 
 \end{frame}
 
-\section{Числа с плавающей точкой}
+\section{Вещественные числа}
+
+\begin{frame}{Представление вещественных чисел}
+
+  Способы представления:
+  \begin{itemize}
+      \pause
+    \item строка (\code{"\num{3.1415}"}),
+      \note[item]{строки: произвольная точность}
+      \pause
+    \item рациональная дробь ($22/7 \approx \num{3.1429}$),
+      \note[item]{дроби: абсолютная точность, используется в символьных
+        вычислениях}
+      \pause
+    \item двоичная запись с фиксированной точкой\\
+      ($\bin{\num{11.001001}} = 2^1 + 2^0 + 2^{-3} + 2^{-6} \approx
+        \num{3.1406}$),
+      \note[item]{фиксированная точка: предсказуемая точность, используется для
+        финансов, быстрота (игровые приставки, кодирование звука/видео),
+        ограниченный диапазон}
+      \pause
+    \item двоичная запись в плавающей точкой.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Числа с плавающей точкой}
+
+  {\Large \[ x = m \cdot b^e, \] }
+  где:
+  \begin{itemize}
+    \item $m$~--- \emph{мантисса} (значащая часть),
+    \item $b$~--- \emph{основание степени} (обычно 2 или 10),
+    \item $e$~--- \emph{экспонента} (порядок).
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Стандарт IEEE 754}
+
+  \begin{table}
+    \begin{tabular}{r|cc}
+                              & \eng{binary32}  & \eng{binary64} \\
+      \hline
+      тип в \eng{C}:          & \code{float}    & \code{double}  \\
+      знак (бит):             & 1               & 1              \\
+      экспонента (бит):       & 8               & 11             \\
+      мантисса (бит):         & 23              & 52             \\
+      точность (дес. знаки):  & 7               & 16             \\
+      мин. абс. значение:     & \num{1.18e-38}  & \num{2.23e-308}\\
+      макс. абс. значение:    & \num{3.40e38}   & \num{1.80e308} \\
+    \end{tabular}
+  \end{table}
+  \note[item]{
+    Точность binary32: $log_{10}(2^{23}+1) \approx \num{7.225}$,\\
+    точность binary64 $log_{10}(2^{52}+1) \approx \num{15.955}$.
+  }
+  \note[item]{
+    Мин. и макс. значения даны для нормализованных чисел.
+  }
+
+\end{frame}
+
+\begin{frame}{Особенные числа}
+
+  \newcommand{\NaN}{NaN}
+
+  \begin{block}{Числа $\pm 0$, $\pm \infty$}
+    \reduceBlockEqSpacing
+    \begin{gather*}
+      1 / (+0) = +\infty, \\
+      1 / (-0) = -\infty, \\
+      \log(0) = -\infty.
+    \end{gather*}
+  \end{block}
+
+  \begin{block}<2->{Не-числа (\eng{NaN, Not a Number}):}
+    \reduceBlockEqSpacing
+    \begin{gather*}
+      \NaN = \sqrt{-1}, 0 / 0, 0 \cdot \infty, \infty / \infty, \infty - \infty, \\
+      \NaN = f(\NaN), \\
+      \alert<3->{\NaN \neq \NaN}.
+    \end{gather*}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{Проблемы с точностью}
+
+  \begin{itemize}
+    \item Округление: $\tg(\pi) \neq 0, \tg(\pi/2) \neq \infty$.
+    \item Накопление ошибок:
+      $a \oplus (b \oplus c) \neq (a \oplus b) \oplus c$.
+    \item Потеря точности:
+      $a \ominus b$, при близких значениях $a$ и $b$.
+      \note[item]{
+        $(f(a)-f(b))/(a-b)$~--- в числителе значащими становятся младшие,
+        неточные разряды}
+    \item Сравнение чисел.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Неправильное сравнение чисел}
+
+  \begin{columns}[onlytextwidth,c]
+    \begin{column}{0.6\textwidth}
+      \begin{lstlisting}[language=C,escapechar=\!]
+float x = 0.1f;
+float y1 = x * x;
+float y2 = 0.01f;
+
+y1 == y2; !\visible<2->{\color{codeComment}// => 0}!
+      \end{lstlisting}
+    \end{column}
+
+    \begin{column}<3->{0.4\textwidth}
+      \includegraphics[width=\linewidth]{meme_why}
+    \end{column}
+
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Причина неправильного сравнения чисел}
+
+  \begin{lstlisting}[language=C,escapechar=\!]
+float x = 0.1f; // 0.100000001490
+float y1 = x * x;
+// 0.010000000708 =
+//    0 01111000 0100011110101110000101!\alert{1}!
+float y2 = 0.01f;
+// 0.009999999776 =
+//    0 01111000 0100011110101110000101!\alert{0}!
+
+y1 == y2; // => 0
+  \end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Правильное сравнение чисел}
+
+  TODO: избавиться от подсвечивания include float
+  и вставить ссылку
+
+  \begin{lstlisting}[language=C++,basicstyle=\footnotesize\ttfamily]
+#include <float.h>
+#include <math.h>
+
+int almostEqual(float a, float b, float epsilon) {
+    if (a == b) {
+        return 1;
+    } else {
+        float A = fabs(a);
+        float B = fabs(b);
+        float diff = fabs(a - b);
+        if (a == 0 || b == 0 || diff < FLT_MIN) {
+            return diff < epsilon * FLT_MIN;
+        } else {
+            return diff / (A + B) < epsilon;
+        }
+    }
+}
+  \end{lstlisting}
+
+\end{frame}
 
 \plain{Конец второй лекции}
 
