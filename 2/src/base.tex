@@ -13,6 +13,10 @@
   showstringspaces=false
 }
 
+\newcommand{\reduceBlockEqSpacing}{%
+  \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}%
+}
+
 % numbers formating: \num{123456}
 \usepackage{numprint}
 \newcommand{\num}[1]{\numprint{#1}}
@@ -332,9 +336,10 @@
 
 \begin{frame}{Битовые логические операции}
 
-  Целое число~--- это лишь набор битов.
+  \note{Целое число~--- это лишь набор битов.\\}
 
   \begin{block}{Бинарные:}
+    \reduceBlockEqSpacing
     \[
       \text{\eng{AND} (\code{\&}):}\thickspace
       \begin{array}{r}
@@ -377,7 +382,46 @@
 
 \begin{frame}{Битовые сдвиги}
 
-  TODO
+  Побитовый сдвиг беззнакового \code{x} на \code{n} бит...
+  \begin{itemize}
+    \item влево (\code{x <{}< n}) эквивалентен умножению на $2^n$,
+    \item вправо (\code{x >{}> n}) эквивалентен делению на $2^n$.
+  \end{itemize}
+
+  \begin{block}{Пример:}
+    \reduceBlockEqSpacing
+    \begin{equation*}
+      \text{\code{<{}< 4}:}\thickspace
+      \begin{array}{r}
+        \pcnum{0101 \alert{1100 0011 0101}} \\
+        \hline
+        \pcnum{\alert{1100 0011 0101} 0000} \\
+      \end{array}
+      \qquad
+      \text{\code{>{}> 4}:}\thickspace
+      \begin{array}{r}
+        \pcnum{\alert{0101 1100 0011} 0101} \\
+        \hline
+        \pcnum{0000 \alert{0101 1100 0011}} \\
+      \end{array}
+    \end{equation*}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{Битовые операции на практике}
+
+  \begin{block}{Чтение бита номер \code{i} из \code{x}:}
+    \code{bit = (x >{}> i) \& 1;}
+  \end{block}
+
+  \begin{block}{Выставление бита номер \code{i} в \code{x}:}
+    \code{x = x | (1 <{}< i);}
+  \end{block}
+
+  \begin{block}{Сброс бита номер \code{i} в \code{x}:}
+    \code{x = x \& \textasciitilde(1 <{}< i);}
+  \end{block}
 
 \end{frame}
 
