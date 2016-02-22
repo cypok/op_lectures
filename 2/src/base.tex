@@ -7,6 +7,11 @@
 \usetheme{metropolis}
 \setbeamercolor{normal text}{bg=white} % white background instead of black!2
 
+
+% colors from metropolis
+\colorlet{codeString}{mLightGreen}
+\colorlet{codeKeyword}{mLightBrown}
+
 \usepackage{pgfpages}
 \setbeameroption{show notes on second screen}
 
@@ -18,7 +23,7 @@
   \setotherlanguage{english}
 
   % workaround for "Package polyglossia Error: The current roman font does not contain the Cyrillic script!"
-  \newfontfamily\cyrillicfonttt{Fira Sans}
+  \newfontfamily\cyrillicfonttt{Fira Mono}
 \else
   \usepackage[T2A]{fontenc}
   \usepackage[utf8]{inputenc}
@@ -28,12 +33,20 @@
   \hypersetup{unicode=true}
 \fi
 
-\newcommand{\eng}[1]{
-  \ifxetex
-    {\textenglish{#1}}
-  \else
-    {\foreignlanguage{english}{#1}}
-  \fi
+\newcommand{\eng}[1]{%
+  \ifxetex%
+    {\textenglish{#1}}%
+  \else%
+    {\foreignlanguage{english}{#1}}%
+  \fi%
+}
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily,
+  keywordstyle=\bfseries\color{codeKeyword},
+  stringstyle=\color{codeString},
+  showstringspaces=false
 }
 
 % numbers formating: \num{123456}
@@ -46,6 +59,8 @@
 \newcommand{\pcnum}[1]{\ensuremath{\mathtt{#1}}}
 \newcommand{\bin}[1]{\pcnum{#1}_2}
 \newcommand{\hex}[1]{\pcnum{#1}_{16}}
+
+\newcommand{\code}[1]{\texttt{#1}}
 
 \hypersetup{pdfauthor={Владимир Парфиненко}}
 \title{Основы программирования}
@@ -91,7 +106,7 @@
 \begin{frame}{Двоичная система счисления}
 
   Самый простой метод записи чисел, использующий только две цифры: 0 и 1.
-  \note{комьютеру легко работать с такими числами\\}
+  \note{компьютеру легко работать с такими числами\\}
 
   С помощью $n$ \emph{позиций} можно записать $2^n$ чисел.
   \note{Суффикс $x_{10}$ будем опускать\\}
@@ -106,11 +121,11 @@
 \begin{frame}{Двоичная система счисления}
 
   Перевод из двоичной в десятичную:
-  \begin{gather*}
+  \[
     \bin{11001} = \mathbf{1} \cdot 2^4 + \mathbf{1} \cdot 2^3 +
                   \mathbf{0} \cdot 2^2 + \mathbf{0} \cdot 2^1 +
                   \mathbf{1} \cdot 2^0 = 16 + 8 + 1 = 25.
-  \end{gather*}
+  \]
   Перевод из десятичной в двоичную:
   \note{сказать про обратный порядок\\}
   \begin{align*}
@@ -130,11 +145,11 @@
   \note{пояснить, что байт - минимальная ячейка памяти, которую компьютер может
   читать/писать\\}
 
-  Например, для кодирования числа 337 нужно, как минимум, 2 байта:
-  \begin{gather*}
+  Например, число 337 кодируется минимум 2 байтами:
+  \[
     \underbrace{\pcnum{00000001}}_{\text{биты } 15 \ldots 8}
     \underbrace{\pcnum{01010001}}_{\text{биты } 7 \ldots 0}
-  \end{gather*}
+  \]
 
   Предельные значения:
   \begin{itemize}
@@ -152,9 +167,9 @@
   \pcnum{D}, \pcnum{E}, \pcnum{F}$.
 
   Перевод в двоичную и обратно через тетрады (по 4 бита):
-  \begin{gather*}
+  \[
     \bin{101011100} = \pcnum{\{0001\}\{0101\}\{1100\}} = \hex{15C}.
-  \end{gather*}
+  \]
 
   «Понятная» запись констант:
   \begin{itemize}
@@ -169,12 +184,19 @@
 
 \begin{frame}{Знаковые числа}
 
+  \note[item]{
   Отдельной памяти под знак нет, поэтому нужно упаковывать его в те же 8 (16,
   32, \ldots) бит.
+  }
 
+  \note[item]{
   Заметим, что компьютер выполняет сложение и вычитание по модулю,
-  соответствующему размеру числа. Рассмотрим сложение $\hex{FF} + \hex{01}$:
-  \begin{gather*}
+  соответствующему размеру числа.
+  }
+
+  Рассмотрим сложение двух 8-битных чисел
+  $\hex{FF} + \hex{01}$:
+  \[
     \begin{array}{r}
     +
       \begin{array}{r}
@@ -186,13 +208,216 @@
         \pcnum{1}\underbrace{\pcnum{00000000}}_{8 \text{ бит}}
       \end{array}
     \end{array}
-  \end{gather*}
+  \]
 
   С точки зрения компьютера $(\hex{FF} + \hex{01}) \mod 2^8 = \hex{00}$.
 
   То есть $X + 1 = 0$. Чему равно $X$?
 
 \end{frame}
+
+\begin{frame}{Знаковые числа}
+
+  Для представления отрицательных чисел используется \emph{двоичный
+  дополнительный код}:
+  \[ -X = 2^N - X, \text{где $N$~--- размер числа.}\]
+
+  8-битные знаковые числа:
+  \begin{align*}
+    \bin{0000 0000} &= 0,    &\qquad \bin{1000 0000} &= -128, \\
+    \bin{0000 0001} &= 1,    &\qquad \bin{1000 0001} &= -127, \\
+                    &\ldots, &\qquad                 &\ldots, \\
+    \bin{0111 1110} &= 126,  &\qquad \bin{1111 1110} &= -2,   \\
+    \bin{0111 1111} &= 127,  &\qquad \bin{1111 1111} &= -1.
+  \end{align*}
+
+  \note{Сложение и вычитание не отличается от беззнаковых чисел.\par}
+  \note{Умножение и деление~--- специфичное.\par}
+
+\end{frame}
+
+\begin{frame}{Переполнение}
+
+  Беззнаковые 8-битные:
+  \begin{itemize}
+    \item $255 + 1 = \bin{1111 1111} + 1 = \bin{0000 0000} = 0$,
+    \item $0 - 1 = \bin{0000 0000} - 1 = \bin{1111 1111} = 255$.
+  \end{itemize}
+
+  Знаковые 8-битные:
+  \begin{itemize}
+    \item $127 + 1 = \bin{0111 1111} + 1 = \bin{1000 0000} = -128$,
+    \item $-128 - 1 = \bin{1000 0000} - 1 = \bin{0111 1111} = 127$.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{\eng{Epic Fails}}
+
+  \begin{itemize}
+    \item 22 сентября 2009 г.~--- \eng{Twitter}: порядковый номер твитов
+      переполнил 32-битное беззнаковое целое.
+
+    \item 9 февраля 2013 г.~--- \eng{OpenStreetMap}: порядковый номер точек на
+      карте переполнил 32-битное знаковое целое.
+
+    \item 1 декабря 2014 г.~--- \eng{YouTube}: количество просмотров
+      \href{https://www.youtube.com/watch?v=9bZkp7q19f0}{одного видео}
+      переполнило 32-битное знаковое целое.
+  \end{itemize}
+
+  \note{В абсолютном большинстве случаев хватит 32-битных чисел.\par}
+
+\end{frame}
+
+\section{Целочисленные типы данных в C и~операции над ними}
+
+\begin{frame}{Беззнаковые целочисленные типы в C}
+
+  \begin{table}
+    \begin{tabular}{ccc}
+      \hline
+      Тип              & Размер, бит & Максимум  \\
+      \hline
+      \code{unsigned char}      & 8  & $\num{255}$ \\
+      \code{unsigned short}     & 16 & $\num{65535}$ \\
+      \code{unsigned int}       & 32 & $\num{4294967295}$ \\
+      \code{unsigned long long} & 64 & $\num{18.4e18}$ \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+\end{frame}
+
+\begin{frame}{Знаковые целочисленные типы в C}
+
+  \begin{table}
+    \begin{tabular}{ccrl}
+      \hline
+      Тип              & Размер, бит & Минимум             & Максимум  \\
+      \hline
+      \code{signed char}        & 8  & $\num{-128}$        & $\num{127}$ \\
+      \code{short}              & 16 & $\num{-32768}$      & $\num{32767}$ \\
+      \code{int}                & 32 & $\num{-2147483648}$ & $\num{2147483647}$ \\
+      \code{long long}          & 64 & $\num{-9.2e18}$     & $\num{9.2e18}$ \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+\end{frame}
+
+\begin{frame}{Арифметические операции}
+
+  \begin{table}
+    \begin{tabular}{cc}
+      \hline
+      Оператор      & Операция \\
+      \hline
+      \code{a + b}  & сложение \\
+      \code{a - b}  & вычитание \\
+      \code{a / b}  & деление нацело \\
+      \code{a \% b} & остаток от деления \\
+      \code{-a}     & отрицание \\
+      \code{a++}    & инкремент \\
+      \code{a--}    & декремент \\
+      \hline
+    \end{tabular}
+  \end{table}
+
+\end{frame}
+
+
+\defverbatim[colored]\lstAbs{
+\begin{lstlisting}[language=C]
+    int x;
+    printf("Enter number: ");
+    scanf("%d", &x);
+    if (x < 0) {
+        x = -x;
+    }
+    printf("Absolute value = %d\n", x);
+\end{lstlisting}
+}
+
+\defverbatim[colored]\lstAbsLogA{
+\begin{lstlisting}
+    Enter number: -37
+    Absolute value = 37
+\end{lstlisting}
+}
+
+\defverbatim[colored]\lstAbsLogB{
+\begin{lstlisting}[escapeinside={/**}{**/}]
+    Enter number: -2147483648
+    Absolute value = -2147483648
+\end{lstlisting}
+}
+
+\begin{frame}{Загадка: модуль числа неотрицательный?}
+
+  \begin{block}{Вычисление модуля введенного числа:}
+    \lstAbs
+  \end{block}
+
+  \begin{block}{Исполнение:}
+    \only<1>{\lstAbsLogA}
+    \only<2>{\lstAbsLogB}
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{Битовые логические операции}
+
+  Целое число~--- это лишь набор битов.
+
+  \begin{block}{Бинарные:}
+    \[
+      \text{\eng{AND} (\code{\&}):}\thickspace
+      \begin{array}{r}
+        \pcnum{0101} \\
+        \pcnum{0011} \\
+        \hline
+        \pcnum{0001}
+      \end{array}
+      \qquad
+      \text{\eng{OR} (\code{|}):}\thickspace
+      \begin{array}{r}
+        \pcnum{0101} \\
+        \pcnum{0011} \\
+        \hline
+        \pcnum{0111}
+      \end{array}
+      \qquad
+      \text{\eng{XOR} (\code{\textasciicircum}):}\thickspace
+      \begin{array}{r}
+        \pcnum{0101} \\
+        \pcnum{0011} \\
+        \hline
+        \pcnum{0110}
+      \end{array}
+    \]
+  \end{block}
+
+  \begin{block}{Унарные:}
+    \[
+      \text{\eng{NOT} (\code{\textasciitilde}):}\thickspace
+      \begin{array}{r}
+        \pcnum{0101} \\
+        \hline
+        \pcnum{1010}
+      \end{array}
+    \]
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{Битовые сдвиги}
+
+  TODO
+
+\end{frame}
+
+\section{Числа с плавающей точкой}
 
 \plain{Конец второй лекции}
 
