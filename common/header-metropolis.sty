@@ -1,0 +1,13 @@
+% workaround for problem with white text if notes are enabled
+% http://tex.stackexchange.com/questions/232168/normal-text-is-invisible-when-using-beamer-with-notes-and-xelatex
+\def\pgfsysdriver{pgfsys-dvipdfm.def}
+
+\documentclass{beamer}
+
+\usetheme{metropolis}
+\setbeamercolor{normal text}{bg=white} % white background instead of black!2
+
+% code colors from metropolis
+\colorlet{codeString}{mLightGreen}
+\colorlet{codeKeyword}{mLightBrown}
+

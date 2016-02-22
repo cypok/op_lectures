@@ -1,0 +1,52 @@
+\documentclass[xcolor=dvipsnames,12pt]{beamer}
+
+% hide navigation symbols
+\beamertemplatenavigationsymbolsempty
+
+% add frame number
+% TODO make it simplier
+\makeatletter
+\setbeamertemplate{footline}
+{%
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.92\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.08\paperwidth,ht=2.25ex,dp=1ex,leftskip=0cm plus1fill,rightskip=.015\paperwidth]{page number in head/foot}%
+    \usebeamerfont{page number in head/foot}
+    \insertframenumber{}
+  \end{beamercolorbox}}%
+  \vskip5pt%
+}
+\makeatother
+
+
+% simple section page
+\defbeamertemplate{section page}{simple}[1][]{
+  \begin{centering}
+    {\usebeamerfont{section name}\usebeamercolor[fg]{section name}#1}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=12pt,center]{part title}
+      \usebeamerfont{section title}\insertsection\par
+    \end{beamercolorbox}
+  \end{centering}
+}
+\setbeamertemplate{section page}[simple]
+\AtBeginSection{
+  \frame[plain,c]{\sectionpage}
+}
+
+% mimic plain frame from metropolis theme
+\newcommand{\plain}[2][]{%
+  \begingroup
+    \begin{frame}[plain,c]{#1}
+      \begin{center}
+        \bfseries\Large #2
+      \end{center}
+    \end{frame}
+  \endgroup
+}
+
+% code colors
+\colorlet{codeString}{Green}
+\colorlet{codeKeyword}{RedOrange}

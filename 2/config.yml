@@ -1,2 +1,4 @@
 :distribution_dir: ".."
 :distribution_name: "2"
+
+:vendor_dir: "../common"
