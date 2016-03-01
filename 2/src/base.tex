@@ -561,28 +561,25 @@ y1 == y2; // => 0
 
 \begin{frame}[fragile]{Правильное сравнение чисел}
 
-  TODO: избавиться от подсвечивания include float
-  и вставить ссылку
-
-  \begin{lstlisting}[language=C++,basicstyle=\footnotesize\ttfamily]
-#include <float.h>
-#include <math.h>
-
-int almostEqual(float a, float b, float epsilon) {
-    if (a == b) {
-        return 1;
-    } else {
-        float A = fabs(a);
-        float B = fabs(b);
-        float diff = fabs(a - b);
-        if (a == 0 || b == 0 || diff < FLT_MIN) {
-            return diff < epsilon * FLT_MIN;
-        } else {
-            return diff / (A + B) < epsilon;
-        }
-    }
-}
+  Идея:
+  \begin{lstlisting}[language=C]
+fabs(y1 - y2) < 0.00001f; // => 1
   \end{lstlisting}
+
+  \pause
+
+  Но нужно так же учесть:
+  \begin{itemize}
+    \item очень большие и очень маленькие числа,
+    \item бесконечности,
+    \item \ldots
+  \end{itemize}
+
+  Реализация: \href{%
+    https://github.com/cypok/floats-comparison%
+  }{%
+    github.com/cypok/floats-comparison
+  }
 
 \end{frame}
 
