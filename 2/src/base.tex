@@ -3,7 +3,7 @@
 \input{lang-setup.sty}
 
 \usepackage{pgfpages}
-\setbeameroption{show notes on second screen}
+%\setbeameroption{show notes on second screen}
 
 \usepackage{listings}
 \lstset{
@@ -11,6 +11,7 @@
   keywordstyle=\bfseries\color{codeKeyword},
   stringstyle=\color{codeString},
   commentstyle=\color{codeComment},
+  literate={-}{-}1, % render dash as dash
   showstringspaces=false
 }
 
@@ -38,7 +39,7 @@
 \institute{
   \vspace{1em}
   \centering
-  \parbox{0.8\textwidth}{
+  \parbox{0.9\textwidth}{
     \includegraphics[width=\linewidth]{xkcd_cant_sleep}
     \par
     \raggedleft\tiny\url{http://xkcd.com/571}

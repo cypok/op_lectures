@@ -2,10 +2,15 @@
 % http://tex.stackexchange.com/questions/232168/normal-text-is-invisible-when-using-beamer-with-notes-and-xelatex
 \def\pgfsysdriver{pgfsys-dvipdfm.def}
 
-\documentclass{beamer}
+\documentclass[xcolor=dvipsnames]{beamer}
 
 \usetheme{metropolis}
 \setbeamercolor{normal text}{bg=white} % white background instead of black!2
+
+% Fira Mono looks ugly, especially "0" & "&"
+\setmonofont{Inconsolata}
+% workaround for "Package polyglossia Error: The current roman font does not contain the Cyrillic script!"
+\newfontfamily\cyrillicfonttt{Inconsolata}
 
 % code colors from metropolis
 \colorlet{codeString}{mLightGreen}
