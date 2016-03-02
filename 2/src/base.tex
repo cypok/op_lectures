@@ -17,6 +17,7 @@
   showstringspaces=false
 }
 
+% TODO: ugly hack for strange spacing in blocks
 \newcommand{\reduceBlockEqSpacing}{%
   \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}%
 }
@@ -81,7 +82,7 @@
   \notep{Компьютеру легко работать с такими числами.}
 
   С помощью $n$ \emph{позиций} можно записать $2^n$ чисел.
-  \notep{Суффикс $x_{10}$ будем опускать.}
+  \notep{Индекс $x_{10}$ будем опускать.}
   \begin{align*}
     \bin{000} &= 0, &\qquad \bin{100} &= 4, \\
     \bin{001} &= 1, &\qquad \bin{101} &= 5, \\
@@ -211,6 +212,7 @@
 
   \notep{Расписать, почему -1 кодируется именно так: -1 = 256 - 1 = 255 = ...}
   \notep{Один и тот же набор бит может трактоваться по-разному!}
+  \notep{Старший бит~--- знак.}
   \notep{Сложение и вычитание не отличается от беззнаковых чисел.}
   \notep{Умножение и деление~--- специфичное.}
 
@@ -352,7 +354,7 @@
   \notep{Целое число~--- это лишь набор битов.}
 
   \begin{block}{Бинарные:}
-    \reduceBlockEqSpacing
+    \ifthenelse{\boolean{basic}}{\reduceBlockEqSpacing}{}
     \[
       \text{\eng{AND} (\code{\&}):}\thickspace
       \begin{array}{r}
@@ -489,22 +491,21 @@
     \begin{tabular}{r|cc}
                               & \eng{binary32}  & \eng{binary64} \\
       \hline
-      тип в \eng{C}:          & \code{float}    & \code{double}  \\
-      знак (бит):             & 1               & 1              \\
-      экспонента (бит):       & 8               & 11             \\
-      мантисса (бит):         & 23              & 52             \\
-      точность (дес. знаки):  & 7               & 16             \\
-      мин. абс. значение:     & \num{1.18e-38}  & \num{2.23e-308}\\
-      макс. абс. значение:    & \num{3.40e38}   & \num{1.80e308} \\
+      тип в \eng{C}           & \code{float}    & \code{double}  \\
+      знак (бит)              & 1               & 1              \\
+      экспонента (бит)        & 8               & 11             \\
+      мантисса (бит)          & 23              & 52             \\
+      точность (дес. знаки)   & 7               & 16             \\
+      мин. абс. значение      & \num{1.18e-38}  & \num{2.23e-308}\\
+      макс. абс. значение     & \num{3.40e38}   & \num{1.80e308} \\
     \end{tabular}
   \end{table}
   \notep{
     Точность binary32: $\log_{10}(2^{23}+1) \approx \num{7.225}$,\\
-    точность binary64 $\log_{10}(2^{52}+1) \approx \num{15.955}$.
+    точность binary64: $\log_{10}(2^{52}+1) \approx \num{15.955}$.
   }
-  \notep{
-    Мин. и макс. значения даны для нормализованных чисел.
-  }
+  \notep{Мин. и макс. значения даны для нормализованных чисел.}
+  \notep{Проще всегда использовать double.}
 
 \end{frame}
 
