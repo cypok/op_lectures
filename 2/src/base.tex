@@ -3,16 +3,6 @@
 \input{lang-setup.sty}
 \input{tools.sty}
 
-\usepackage{listings}
-\lstset{
-  basicstyle=\ttfamily,
-  keywordstyle=\bfseries\color{codeKeyword},
-  stringstyle=\color{codeString},
-  commentstyle=\color{codeComment},
-  literate={-}{-}1, % render dash as dash
-  showstringspaces=false
-}
-
 % TODO: ugly hack for strange spacing in blocks
 \newcommand{\reduceBlockEqSpacing}{%
   \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}%

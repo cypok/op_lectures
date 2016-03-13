@@ -3,3 +3,32 @@
 \setbeamertemplate{note page}[plain]
 \newcommand{\notep}[1]{\note{#1\par}}
 
+\usepackage{listings}
+\usepackage{lstautogobble}
+\lstset{
+  xleftmargin=0.03\textwidth,
+  aboveskip=0.75\medskipamount,
+  belowskip=0.5\medskipamount,
+  %
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codeKeyword},
+  stringstyle=\color{codeString},
+  commentstyle=\color{codeComment},
+  %
+  literate={-}{-}1, % render dash as dash
+  showstringspaces=false,
+  %
+  autogobble
+}
+
+\lstdefinestyle{inline}{%
+   basicstyle=\ttfamily\normalsize
+}
+
+\lstnewenvironment{clisting}[1][]{\lstset{language=C,#1}}{}
+
+% Workaround for unconditional parskip after lstlisting environment
+% See: http://tex.stackexchange.com/questions/40863/parskip-inserts-extra-space-after-floats-and-listings
+\newcommand{\revertListingParskip}{%
+  \vspace*{-\parskip}%
+}

@@ -41,12 +41,17 @@
   \begingroup
     \begin{frame}[plain,c]{#1}
       \begin{center}
+        \vskip1em\par
         \usebeamercolor[fg]{frametitle}
         \bfseries\Large #2
       \end{center}
     \end{frame}
   \endgroup
 }
+
+% mimic line and par spacing
+\setlength{\parskip}{0.5em}
+\linespread{1.15}
 
 % code colors
 \colorlet{codeString}{Green}

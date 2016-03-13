@@ -1,7 +1,12 @@
 %\input{header-basic.sty}
 \input{header-metropolis.sty}
 \input{lang-setup.sty}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,matrix,positioning}
+
 \input{tools.sty}
+
 
 \hypersetup{pdfauthor={Владимир Парфиненко}}
 \title{Основы программирования}
@@ -17,12 +22,87 @@
   }
 }
 
-
 \begin{document}
+
+% it can be done only after begin{document} because of "@"
+\lstMakeShortInline[language=C,style=inline]@
 
 \begin{frame}[plain]
   \titlepage
 \end{frame}
+
+\section{Массивы}
+
+\begin{frame}[fragile]{Одномерные массивы}
+
+  \notep{
+    Мотивация: для задания квадратного уравнения нужно 3 переменные: a, b, c.
+    А что делать с уравнением 10-ой степени?
+    Правильно, нужен массив!
+  }
+
+  Массив~--- упорядоченный набор элементов одного типа.
+
+  \pause
+  Объявление массива @arr@, состоящего из @N@ элементов произвольного
+  типа~@T@:
+  \begin{clisting}
+    T arr[N];
+  \end{clisting}
+  \revertListingParskip
+  где @N@~--- константа времени компиляции.
+  \notep{Без инициализации массив, объявленный в функции, содержит мусор.}
+
+  \pause
+  Пример объявления и инициализации массива:
+  \begin{clisting}
+    int xs[4] = {20, 10}; // {20, 10, 0, 0}
+    int ys[]  = {20, 10}; // {20, 10}
+  \end{clisting}
+  \notep{Элементы, для которых нет явно заданного значения, инициализируются
+  нулями.}
+  \notep{Размер массива может быть вычислен автоматически, что может быть
+  довольно удобным.}
+
+\end{frame}
+
+\begin{frame}[fragile]{Одномерные массивы: доступ к элементам}
+
+  @T arr[N]@:
+  \begin{center}
+  \begin{tikzpicture}
+    \matrix (m) [matrix of nodes, nodes in empty cells, column sep=-\pgflinewidth,
+      row 1/.style={nodes={draw, minimum height=10mm, minimum width=10mm}},
+      row 2/.style={nodes={align=center, text width=7mm}}
+    ]{
+          &     & &        & &       \\
+      @0@ & @1@ & & \ldots & & @N-1@ \\
+    };
+  \end{tikzpicture}
+  \end{center}
+  \notep{Элементы массива размера N имеют индексы 0, 1, \ldots, N-1.}
+
+  \pause
+  Чтение элемента из массива по индексу @i@:
+  \begin{clisting}
+    T value = arr[i];
+  \end{clisting}
+
+  Запись элемента в массив по индексу @i@:
+  \begin{clisting}
+    arr[i] = new_value;
+  \end{clisting}
+
+  \notep{Доступ по недопустимому индексу~--- неопределенное поведение.}
+
+\end{frame}
+
+
+\section{Указатели}
+
+\section{Виды памяти}
+
+\section{Динамическая память}
 
 \plain{Конец третьей лекции}
 
