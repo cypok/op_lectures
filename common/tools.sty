@@ -21,11 +21,16 @@
   autogobble
 }
 
-\lstdefinestyle{inline}{%
-   basicstyle=\ttfamily\normalsize
+\lstdefinelanguage{myC}[]{C}{
+  morekeywords={size_t}
 }
 
-\lstnewenvironment{clisting}[1][]{\lstset{language=C,#1}}{}
+\lstdefinestyle{inlineC}{%
+  basicstyle=\ttfamily\normalsize,
+  language=myC
+}
+
+\lstnewenvironment{clisting}[1][]{\lstset{language=myC,#1}}{}
 
 % Workaround for unconditional parskip after lstlisting environment
 % See: http://tex.stackexchange.com/questions/40863/parskip-inserts-extra-space-after-floats-and-listings

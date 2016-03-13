@@ -25,7 +25,7 @@
 \begin{document}
 
 % it can be done only after begin{document} because of "@"
-\lstMakeShortInline[language=C,style=inline]@
+\lstMakeShortInline[style=inlineC]@
 
 \begin{frame}[plain]
   \titlepage
@@ -60,27 +60,31 @@
     int ys[]  = {20, 10}; // {20, 10}
   \end{clisting}
   \notep{Элементы, для которых нет явно заданного значения, инициализируются
-  нулями.}
+    нулями.}
   \notep{Размер массива может быть вычислен автоматически, что может быть
-  довольно удобным.}
+    довольно удобным.}
 
 \end{frame}
+
+\tikzset{array matrix/.style={matrix of nodes, nodes in empty cells,
+  column sep=-\pgflinewidth, row sep=-\pgflinewidth}}
+\tikzset{array node/.style={draw, anchor=center, minimum height=9mm, minimum width=9mm}}
+\tikzset{array index node/.style={align=center, anchor=center, text width=6mm}}
 
 \begin{frame}[fragile]{Одномерные массивы: доступ к элементам}
 
   @T arr[N]@:
   \begin{center}
   \begin{tikzpicture}
-    \matrix (m) [matrix of nodes, nodes in empty cells, column sep=-\pgflinewidth,
-      row 1/.style={nodes={draw, minimum height=10mm, minimum width=10mm}},
-      row 2/.style={nodes={align=center, text width=7mm}}
+    \matrix (m) [array matrix,
+      row 1/.style={nodes={array node}},
+      row 2/.style={nodes={array index node}}
     ]{
           &     & &        & &       \\
       @0@ & @1@ & & \ldots & & @N-1@ \\
     };
   \end{tikzpicture}
   \end{center}
-  \notep{Элементы массива размера N имеют индексы 0, 1, \ldots, N-1.}
 
   \pause
   Чтение элемента из массива по индексу @i@:
@@ -94,6 +98,151 @@
   \end{clisting}
 
   \notep{Доступ по недопустимому индексу~--- неопределенное поведение.}
+
+\end{frame}
+
+\begin{frame}[fragile]{Двумерные массивы}
+
+  @T arr[N][M]@:
+  \begin{center}
+  \begin{tikzpicture}[
+    row2 columns/.style={row 2 column #1/.style={nodes={array node}}},
+    row3 columns/.style={row 3 column #1/.style={nodes={array node}}},
+    row4 columns/.style={row 4 column #1/.style={nodes={array node}}},
+    row columns/.style={row#1 columns/.list={2,3,4,5,6}},
+  ]
+    \matrix (m) [array matrix,
+      column 1/.style={nodes={array index node}},
+      row 1/.style={nodes={array index node}},
+      row columns/.list={2,3,4},
+    ]{
+      & @0@ & & \ldots & & @M-1@ \\
+      @0@ & & & & & \\
+      \vdots & & & & & \\
+      @N-1@ & & & & & \\
+    };
+  \end{tikzpicture}
+  \end{center}
+  \notep{Первая размерность~--- количество строк, как в линейной алгебре.}
+
+  \begin{columns}[onlytextwidth,T]
+    \pause
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}
+        int m[2][3] = {
+          {1, 2, 3},
+          {4, 5, 6}};
+      \end{clisting}
+    \end{column}
+
+    \pause
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}
+        int two = m[0][1];
+        m[1][2] = 66;
+      \end{clisting}
+    \end{column}
+    \notep{two получит значение 2, а вместо 6 будет записано 66.}
+
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Многомерные массивы}
+
+  @T arr[N1][N2][...][Nk]@~--- все аналогично.
+
+\end{frame}
+
+\begin{frame}[fragile]{Передача массивов в функции}
+
+  Зачастую, размер массива передается отдельным параметром:
+  \begin{clisting}[escapechar=\!]
+    int sum_values(int values[], size_t size) !\pause!{
+        int sum = 0;
+        for (size_t i = 0; i < size; i++) {
+            sum += values[i];
+        }
+        return sum;
+    }
+    !\pause!
+    int sum_pairs(int pairs[][2], size_t size) {
+        // ...
+    }
+  \end{clisting}
+
+  \notep{size\_t - специальный беззнаковый тип данных, которого гарантированно
+    хватает для хранения размера любого массива на данной архитектуре.}
+
+  \notep{
+    Для многомерных массивов значения всех размерностей, кроме первой
+    фиксируются.
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]{Передача фиксированных массивов в функции}
+
+  Массивы жестко фиксированных размерностей передаются без дополнительных
+  параметров:
+  \begin{clisting}
+    int sum_matrix(int matrix[3][3]) {
+        int sum = 0;
+        for (size_t i = 0; i < 3; i++) {
+            for (size_t j = 0; j < 3; j++) {
+                sum += matrix[i][j];
+            }
+        }
+        return sum;
+    }
+  \end{clisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Возвращение массивов из функций}
+
+  \onslide<+->
+  \begin{clisting}[escapechar=\!]
+    int[] reverse(int arr[], size_t size) {
+      !\onslide<+->{\color{codeComment}// compile time error}!
+        int result[size]; !\onslide<+->{\color{codeComment}// compile time error}!
+        // ...
+        return result; !\onslide<+->{\color{codeComment}// run time error}!
+    }
+
+    int original[] = {1, 2, 3};
+    int reversed[] = reverse(original, 3);
+      !\onslide<+->{\color{codeComment}// compile time error}!
+  \end{clisting}
+  \notep{size~--- не может быть использована для инициализации массива, т.\,к.
+    не является константой времени компиляции.}
+  \notep{Более того, такой массив уничтожится после возвращения из функции, но
+    об этом позже.}
+  \notep{Более того, в массивную переменную нельзя ничего <<присвоить>>, что
+    делать с результатом?}
+  \notep{И формально говоря, функция в C вообще не может иметь массив в
+    качестве возвращаемого значения.}
+
+\end{frame}
+
+\begin{frame}[fragile]{«Возвращение» массивов из функций}
+
+  \begin{clisting}
+    void reverse(int dst[], int src[],
+                 size_t size) {
+
+        for (size_t i = 0; i < size; i++) {
+            dst[i] = src[size - i - 1];
+        }
+    }
+
+    int original[3] = {1, 2, 3};
+    int reversed[3];
+    reverse(reversed, original, 3);
+  \end{clisting}
+
+  \notep{Перекладываем ответственность за создание массива на вызывающую
+    функцию.}
 
 \end{frame}
 
