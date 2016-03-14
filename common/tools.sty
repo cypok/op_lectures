@@ -1,7 +1,19 @@
 \usepackage{pgfpages}
+
+% minimal - it is like plain, but with background color
+\defbeamertemplate{note page}{minimal}{%
+  \nointerlineskip%
+  \insertvrule{\paperheight}{note page.bg}%
+  \vskip-\paperheight%
+  \insertnote%
+}
+
 %\setbeameroption{show notes on second screen}
-\setbeamertemplate{note page}[plain]
+\setbeamertemplate{note page}[minimal]
+\setbeamercolor{note page}{bg=black!5}
+
 \newcommand{\notep}[1]{\note{#1\par}}
+
 
 \usepackage{listings}
 \usepackage{lstautogobble}
