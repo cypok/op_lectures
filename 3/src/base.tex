@@ -4,6 +4,8 @@
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,matrix,positioning}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{arrows}
 
 \input{tools.sty}
 
@@ -214,14 +216,14 @@
     int reversed[] = reverse(original, 3);
       !\onslide<+->{\color{codeComment}// compile time error}!
   \end{clisting}
+  \notep{Формально говоря, функция в C вообще не может иметь массив в
+    качестве возвращаемого значения.}
   \notep{size~--- не может быть использована для инициализации массива, т.\,к.
     не является константой времени компиляции.}
   \notep{Более того, такой массив уничтожится после возвращения из функции, но
     об этом позже.}
   \notep{Более того, в массивную переменную нельзя ничего <<присвоить>>, что
     делать с результатом?}
-  \notep{И формально говоря, функция в C вообще не может иметь массив в
-    качестве возвращаемого значения.}
 
 \end{frame}
 
@@ -246,8 +248,101 @@
 
 \end{frame}
 
-
 \section{Указатели}
+
+\tikzset{
+  byte lines/.style={black!30},
+  block byte lines/.style={black!40},
+  mem block/.style={fill=black!10},
+}
+
+\newcommand\memtop{1}
+\newcommand\membottom{0}
+
+\newcommand{\memline}[2]{
+  \def\left{#1+0.05}
+  \def\right{#2-0.05}
+
+  \draw[byte lines] (\left,\membottom) grid (\right,\memtop);
+
+  \foreach \y in {\membottom, \memtop}
+    \draw (\left,\y) -- (\right,\y);
+
+  \foreach \x in {\left, \right}
+    \draw [decorate,decoration={snake,amplitude=0.3mm,segment length=3mm}]
+      (\x,\membottom) -- (\x,\memtop);
+}
+
+\newcommand{\memblock}[3]{
+  \def\left{#1}
+  \def\right{#2}
+  \def\blockname{#3}
+
+  \draw [mem block,draw=none] (\left,\membottom) rectangle (\right,\memtop);
+  \draw [block byte lines] (\left,\membottom) grid (\right,\memtop);
+  \draw [mem block,fill=none] (\left,\membottom) rectangle (\right,\memtop)
+    node [pos=0.5] (block \blockname) {};
+}
+
+\newcommand{\memaddr}[2]{
+  \def\x{#1+0.5}
+  \def\y{\membottom-0.6}
+  \draw [-latex] (\x,\y) node [fill=white] {\ttfamily\small #2} -- (\x,\membottom);
+}
+
+\begin{frame}[fragile]{Указатель как адрес}
+
+  \begin{center}
+  \begin{visibleenv}<2->
+  \begin{tikzpicture}[
+      scale=0.8,
+  ]
+    \memline{0.5}{7.5}
+    \memline{7.5}{14.5}
+
+    \memblock{2}{6}{x}
+    \node [mem block] at (block x) {518};
+
+    \memblock{9}{13}{y}
+    \node<-7> [mem block] at (block y) {320};
+    \node<8-> [mem block] at (block y) {999};
+
+    \begin{visibleenv}<3->
+      \memaddr{2}{0x20}
+      \memaddr{5}{0x23}
+
+      \memaddr{9}{0x40}
+      \memaddr{12}{0x43}
+    \end{visibleenv}
+  \end{tikzpicture}
+  \end{visibleenv}
+  \end{center}
+
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.35\textwidth}
+      \begin{clisting}[escapechar=\!]
+        int x = 518;
+        int y = 320;
+      \end{clisting}
+    \end{column}
+
+    \begin{column}{0.65\textwidth}<4->
+      \begin{clisting}[escapechar=\!]
+        int *p;
+        !\onslide<5->!p = &x;
+        printf("%p %d\n", p, *p); // 0x20 518
+        // !\color{codeComment}\& - взятие адреса!
+        // !\color{codeComment}* - разыменование указателя!
+        !\onslide<6->!p = &y;
+        printf("%p %d\n", p, *p); // 0x40 320
+        !\onslide<7->!*p = 999 ;
+        !\onslide<8->!printf("%d %d\n", x, y); // 518 999
+      \end{clisting}
+    \end{column}
+
+  \end{columns}
+
+\end{frame}
 
 \section{Виды памяти}
 
