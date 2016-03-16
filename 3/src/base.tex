@@ -99,7 +99,8 @@
     arr[i] = new_value;
   \end{clisting}
 
-  \notep{Доступ по недопустимому индексу~--- неопределенное поведение.}
+  \notep{Доступ по недопустимому индексу (-1, N, 2*N)~--- неопределенное
+    поведение.}
 
 \end{frame}
 
@@ -173,7 +174,7 @@
     }
   \end{clisting}
 
-  \notep{size\_t - специальный беззнаковый тип данных, которого гарантированно
+  \notep{size\_t~--- специальный беззнаковый тип данных, которого гарантированно
     хватает для хранения размера любого массива на данной архитектуре.}
 
   \notep{
@@ -293,9 +294,9 @@
 
 \newcommand{\memlabel}[3]{
   %\draw [decorate,decoration={brace, raise=0.7mm}] (#1,\memtop) -- (#2,\memtop)
-  %  node [midway,yshift=4mm] {#3};
+  %  node [midway,yshift=4mm] {\ttfamily #3};
   \path (#1,\memtop) -- (#2,\memtop)
-    node [midway,yshift=3mm,text height=1.5ex] {#3};
+    node [midway,yshift=3mm,text height=1.5ex] {\ttfamily #3};
 }
 
 \newcommand{\memblockwithaddr}[5]{
@@ -304,14 +305,19 @@
   \memaddr{#2-1}{#5}
 }
 
-\newcommand{\memblockwithlabel}[4]{
-  \memblock{#1}{#2}{#3}
-  \memlabel{#1}{#2}{#4}
-}
-
 \newcommand{\memblockwithaddrandlabel}[6]{
   \memblockwithaddr{#1}{#2}{#3}{#4}{#5}
   \memlabel{#1}{#2}{#6}
+}
+
+\newcommand{\memblockwithoneaddr}[4]{
+  \memblock{#1}{#2}{#3}
+  \memaddr{#1}{#4}
+}
+
+\newcommand{\memblockwithoneaddrandlabel}[5]{
+  \memblockwithoneaddr{#1}{#2}{#3}{#4}
+  \memlabel{#1}{#2}{#5}
 }
 
 \begin{frame}[fragile]{Указатель как адрес}
@@ -366,7 +372,8 @@
 
   \end{columns}
 
-  \notep{int*  - указатель на int, т.е. адрес памяти, где лежит int.}
+  \notep{Адресом блока памяти считается номер его самого младшего байта.}
+  \notep{int*~--- указатель на int, т.е. адрес памяти, где лежит int.}
   \notep{Заметьте, y поменяло свое значение, хотя прямых записей в него не было.}
 
 \end{frame}
@@ -381,12 +388,12 @@
     \memline{1}{7}
     \memblockwithaddrandlabel{2}{6}{q}%
       {0x20}{0x23}%
-      {\ttfamily q}
+      {q}
 
     \memline{8}{14}
     \memblockwithaddrandlabel{9}{13}{r}%
       {0x40}{0x43}%
-      {\ttfamily r}
+      {r}
 
 
     \node<4-8> [mem block] at (block q) {???};
@@ -429,6 +436,8 @@
 
   \notep{x, y передаются по значению, q, r передаются по указателю.}
   \notep{Модификация a и b в функции никак не изменит значения x, y.}
+  \notep{Однако запись по указателям pq, pr непосредственно меняет значения
+    q, r.}
 
 \end{frame}
 
@@ -442,9 +451,9 @@
     \memline{5}{11}cypok/fix-ant-build
     \memline{12}{18}
 
-    \memblockwithlabel{2}{3}{x}%
-      {\ttfamily x}
-    \memaddr{2}{0x20}
+    \memblockwithoneaddrandlabel{2}{3}{x}%
+      {0x20}%
+      {x}
     \node<-6> [mem block] at (block x) {37};
     \node<7-> [mem block] at (block x) {42};
 
@@ -452,14 +461,14 @@
     \begin{visibleenv}<2->
       \memblockwithaddrandlabel{6}{10}{px}%
         {0x80}{0x84}%
-        {\ttfamily px}
+        {px}
       \node<3-> [mem block] at (block px) {\ttfamily 0x20};
     \end{visibleenv}
 
     \begin{visibleenv}<4->
       \memblockwithaddrandlabel{13}{17}{ppx}%
         {0xE0}{0xE4}%
-        {\ttfamily ppx}
+        {ppx}
       \node<5-> [mem block] at (block ppx) {\ttfamily 0x80};
     \end{visibleenv}
 
@@ -475,11 +484,135 @@
   \end{clisting}
 
   \notep{T* для любого T всегда занимает одинаковое количество байт на одной
-  платформе. Обычно так: 32-битные платформы - 4 байта, 64-битные - 8 байт.}
+    платформе. Обычно так: 32-битные платформы~--- 4 байта, 64-битные~--- 8
+    байт.}
   \notep{Адрес хранится как беззнаковое число.}
+  \notep{Сейчас не будем подробно останавливаться на двойных указателях.}
 
 \end{frame}
 
+\begin{frame}[fragile]{Представление массива}
+
+  \begin{center}
+  \begin{visibleenv}<2->
+  \begin{tikzpicture}[
+      scale=0.8,
+  ]
+    \memline{1}{9}
+    \memblockwithoneaddrandlabel{2}{4}{a0}%
+      {0x20}%
+      {a[0]}
+    \memblockwithoneaddrandlabel{4}{6}{a1}%
+      {0x22}%
+      {a[1]}
+    \memblockwithoneaddrandlabel{6}{8}{a2}%
+      {0x24}%
+      {a[2]}
+
+    \node [mem block] at (block a0) {10};
+    \node<-5> [mem block] at (block a1) {20};
+    \node<6-> [mem block] at (block a1) {200};
+    \node<-7> [mem block] at (block a2) {30};
+    \node<8-> [mem block] at (block a2) {230};
+
+  \end{tikzpicture}
+  \end{visibleenv}
+  \end{center}
+
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        short a[3] = {10, 20, 30};
+
+        !\onslide<3->!short* p = !\alt<12>{!a!}{!\&(a[0])!}!; // 0x20
+        !\onslide<4->!short* p1 = p + 1;  // 0x22
+        short* p2 = p + 2;  // 0x24
+      \end{clisting}
+    \end{column}
+
+    \begin{column}{0.45\textwidth}
+      \begin{clisting}[escapechar=\!]
+        !\onslide<5->!!\temporal<9-10>{!*p1!}{!*(p+1)!}{!p[1]!}! = 200;
+        !\onslide<7->!!\temporal<9-10>{!*p2!}{!*(p+2)!}{!p[2]!}! = !\temporal<9-10>{!*p1!}{!*(p+1)!}{!p[1]!}! + !\temporal<9-10>{!*p2!}{!*(p+2)!}{!p[2]!}!;
+        !\onslide<10->!// *(x + y) == x[y]
+      \end{clisting}
+    \end{column}
+
+  \end{columns}
+
+  \notep{Массив хранится как непрерывный блок памяти, элементы располагаются
+    последовательно.}
+  \notep{При прибавлении значения n к указателю, его значение увеличивается на
+    (n * размер типа данных под указателем).}
+  \notep{Массивная переменная~--- всего лишь указатель на начало массива.}
+
+\end{frame}
+
+\begin{frame}[fragile]{Представление двумерного массива}
+
+  \begin{center}
+  \begin{visibleenv}<2->
+  \begin{tikzpicture}[
+      scale=0.8,
+  ]
+    \memline{1}{15}
+    \memblockwithoneaddrandlabel{2}{4}{a00}%
+      {0x20}%
+      {\small a[0][0]}
+    \memblockwithoneaddrandlabel{4}{6}{a01}%
+      {0x22}%
+      {\small a[0][1]}
+    \memblockwithoneaddrandlabel{6}{8}{a02}%
+      {0x24}%
+      {\small a[0][2]}
+    \memblockwithoneaddrandlabel{8}{10}{a10}%
+      {0x26}%
+      {\small a[1][0]}
+    \memblockwithoneaddrandlabel{10}{12}{a11}%
+      {0x28}%
+      {\small a[1][1]}
+    \memblockwithoneaddrandlabel{12}{14}{a12}%
+      {0x2A}%
+      {\small a[1][2]}
+
+    \node [mem block] at (block a00) {10};
+    \node [mem block] at (block a01) {20};
+    \node [mem block] at (block a02) {30};
+    \node [mem block] at (block a10) {40};
+    \node [mem block] at (block a11) {50};
+    \node [mem block] at (block a12) {60};
+
+  \end{tikzpicture}
+  \end{visibleenv}
+  \end{center}
+
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        short a[2][3] = {
+          {10, 20, 30},
+          {40, 50, 60}};
+
+        !\onslide<3->!a[i][j] == *(a + i*3 + j);
+      \end{clisting}
+    \end{column}
+
+    \begin{column}{0.45\textwidth}
+      \begin{clisting}[escapechar=\!]
+        !\onslide<4->!short* p = a;
+
+
+
+        a[i][j] == p[i*3 + j];
+      \end{clisting}
+    \end{column}
+
+  \end{columns}
+
+  \notep{Массив хранится как непрерывный блок памяти, элементы располагаются
+    последовательно: строка за строкой.}
+
+\end{frame}
 
 
 
