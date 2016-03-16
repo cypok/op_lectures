@@ -627,7 +627,7 @@
   \begin{itemize}
     \item глобальные переменные: @char game_field[100][100]@,
     \item строковые литералы: @"Hello world!"@,
-    \item \ldots
+    \item ...
       \notep{К статической памяти также относятся static-переменные.}
   \end{itemize}
 
@@ -636,7 +636,7 @@
   \begin{itemize}
     \item выделяется во время старта программы,
     \item освобождается во время завершения программы,
-    \item инициализируется нулевым значением,
+    \item инициализируется нулевыми значениями,
     \item фиксированный размер.
   \end{itemize}
 
@@ -741,10 +741,10 @@
   \end{clisting}
   \revertListingParskip
   Функция выделяет блок памяти размером @size@ байт и возвращает указатель на
-  начало блока. \alert<+>{В случае, если память выделить не получилось,
+  начало блока. \alert<2>{В случае, если память выделить не получилось,
   возвращает \texttt{NULL}.}
 
-  \onslide<+->
+  \onslide<3->
   \begin{clisting}[basicstyle=\ttfamily]
     void* calloc(size_t num, size_t size);
   \end{clisting}
