@@ -4,7 +4,7 @@
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,matrix,positioning}
-\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.pathmorphing,decorations.pathreplacing}
 \usetikzlibrary{arrows}
 
 \input{tools.sty}
@@ -206,15 +206,15 @@
   \onslide<+->
   \begin{clisting}[escapechar=\!]
     int[] reverse(int arr[], size_t size) {
-      !\onslide<+->{\color{codeComment}// compile time error}!
-        int result[size]; !\onslide<+->{\color{codeComment}// compile time error}!
+      !\onslide<+->{\comment// compile time error}!
+        int result[size]; !\onslide<+->{\comment// compile time error}!
         // ...
-        return result; !\onslide<+->{\color{codeComment}// run time error}!
+        return result; !\onslide<+->{\comment// run time error}!
     }
 
     int original[] = {1, 2, 3};
     int reversed[] = reverse(original, 3);
-      !\onslide<+->{\color{codeComment}// compile time error}!
+      !\onslide<+->{\comment// compile time error}!
   \end{clisting}
   \notep{Формально говоря, функция в C вообще не может иметь массив в
     качестве возвращаемого значения.}
@@ -260,8 +260,8 @@
 \newcommand\membottom{0}
 
 \newcommand{\memline}[2]{
-  \def\left{#1+0.05}
-  \def\right{#2-0.05}
+  \def\left{#1-0.45}
+  \def\right{#2+0.45}
 
   \draw[byte lines] (\left,\membottom) grid (\right,\memtop);
 
@@ -286,8 +286,32 @@
 
 \newcommand{\memaddr}[2]{
   \def\x{#1+0.5}
-  \def\y{\membottom-0.6}
-  \draw [-latex] (\x,\y) node [fill=white] {\ttfamily\small #2} -- (\x,\membottom);
+  \def\y{\membottom-0.5}
+  \draw [-latex,shorten <=6pt] (\x,\y)
+    node [fill=white,inner sep=0,outer sep=0] {\ttfamily\small #2} -- (\x,\membottom);
+}
+
+\newcommand{\memlabel}[3]{
+  %\draw [decorate,decoration={brace, raise=0.7mm}] (#1,\memtop) -- (#2,\memtop)
+  %  node [midway,yshift=4mm] {#3};
+  \path (#1,\memtop) -- (#2,\memtop)
+    node [midway,yshift=3mm,text height=1.5ex] {#3};
+}
+
+\newcommand{\memblockwithaddr}[5]{
+  \memblock{#1}{#2}{#3}
+  \memaddr{#1}{#4}
+  \memaddr{#2-1}{#5}
+}
+
+\newcommand{\memblockwithlabel}[4]{
+  \memblock{#1}{#2}{#3}
+  \memlabel{#1}{#2}{#4}
+}
+
+\newcommand{\memblockwithaddrandlabel}[6]{
+  \memblockwithaddr{#1}{#2}{#3}{#4}{#5}
+  \memlabel{#1}{#2}{#6}
 }
 
 \begin{frame}[fragile]{Указатель как адрес}
@@ -297,12 +321,12 @@
   \begin{tikzpicture}[
       scale=0.8,
   ]
-    \memline{0.5}{7.5}
-    \memline{7.5}{14.5}
 
+    \memline{1}{7}
     \memblock{2}{6}{x}
     \node [mem block] at (block x) {518};
 
+    \memline{8}{14}
     \memblock{9}{13}{y}
     \node<-7> [mem block] at (block y) {320};
     \node<8-> [mem block] at (block y) {999};
@@ -328,21 +352,136 @@
 
     \begin{column}{0.65\textwidth}<4->
       \begin{clisting}[escapechar=\!]
-        int *p;
-        !\onslide<5->!p = &x;
+        int* p;
+        !\onslide<5->!// !\comment\& - взятие адреса!
+        // !\comment* - разыменование указателя!
+        p = &x;
         printf("%p %d\n", p, *p); // 0x20 518
-        // !\color{codeComment}\& - взятие адреса!
-        // !\color{codeComment}* - разыменование указателя!
         !\onslide<6->!p = &y;
         printf("%p %d\n", p, *p); // 0x40 320
-        !\onslide<7->!*p = 999 ;
-        !\onslide<8->!printf("%d %d\n", x, y); // 518 999
+        !\onslide<7->!*p = 999;
+        !\onslide<9->!printf("%d %d\n", x, y); // 518 999
       \end{clisting}
     \end{column}
 
   \end{columns}
 
+  \notep{int*  - указатель на int, т.е. адрес памяти, где лежит int.}
+  \notep{Заметьте, y поменяло свое значение, хотя прямых записей в него не было.}
+
 \end{frame}
+
+\begin{frame}[fragile]{Пример: возврат двух значений из функции}
+
+  \begin{center}
+  \begin{visibleenv}<3->
+  \begin{tikzpicture}[
+      scale=0.8,
+  ]
+    \memline{1}{7}
+    \memblockwithaddrandlabel{2}{6}{q}%
+      {0x20}{0x23}%
+      {\ttfamily q}
+
+    \memline{8}{14}
+    \memblockwithaddrandlabel{9}{13}{r}%
+      {0x40}{0x43}%
+      {\ttfamily r}
+
+
+    \node<4-8> [mem block] at (block q) {???};
+    \node<9-> [mem block] at (block q) {12};
+
+    \node<4-10> [mem block] at (block r) {???};
+    \node<11-> [mem block] at (block r) {3};
+
+  \end{tikzpicture}
+  \end{visibleenv}
+  \end{center}
+
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        void divide(
+            int a, int b, !\onslide<6->{\comment// 123, 10}!
+            int* pq, !\onslide<7->{\comment// 0x20}!
+            int* pr) !\onslide<7->{\comment// 0x40}!
+        {
+          *pq = a / b; !\onslide<8->{\comment// *(0x20) = 12}!
+          *pr = a % b; !\onslide<10->{\comment// *(0x40) = 3}!
+        }
+      \end{clisting}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}<2->
+      \begin{clisting}[escapechar=\!]
+        int x = 123, y = 10;
+        int q, r;
+
+        !\onslide<5->!divide(x, y, &q, &r);
+        !\onslide<12->!printf("%d = %d * %d + %d\n",
+          x, y, q, r);
+        // 123 = 10 * 12 + 3
+      \end{clisting}
+    \end{column}
+
+  \end{columns}
+
+  \notep{x, y передаются по значению, q, r передаются по указателю.}
+  \notep{Модификация a и b в функции никак не изменит значения x, y.}
+
+\end{frame}
+
+\begin{frame}[fragile]{Представление указателя}
+
+  \begin{center}
+  \begin{tikzpicture}[
+      scale=0.7,
+  ]
+    \memline{1}{4}
+    \memline{5}{11}cypok/fix-ant-build
+    \memline{12}{18}
+
+    \memblockwithlabel{2}{3}{x}%
+      {\ttfamily x}
+    \memaddr{2}{0x20}
+    \node<-6> [mem block] at (block x) {37};
+    \node<7-> [mem block] at (block x) {42};
+
+
+    \begin{visibleenv}<2->
+      \memblockwithaddrandlabel{6}{10}{px}%
+        {0x80}{0x84}%
+        {\ttfamily px}
+      \node<3-> [mem block] at (block px) {\ttfamily 0x20};
+    \end{visibleenv}
+
+    \begin{visibleenv}<4->
+      \memblockwithaddrandlabel{13}{17}{ppx}%
+        {0xE0}{0xE4}%
+        {\ttfamily ppx}
+      \node<5-> [mem block] at (block ppx) {\ttfamily 0x80};
+    \end{visibleenv}
+
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{clisting}[escapechar=\!]
+    char x = 37;
+    !\onslide<2->!char* px = &x;
+    !\onslide<4->!char** ppx = &px;
+
+    !\onslide<6->!**ppx = 42;
+  \end{clisting}
+
+  \notep{T* для любого T всегда занимает одинаковое количество байт на одной
+  платформе. Обычно так: 32-битные платформы - 4 байта, 64-битные - 8 байт.}
+  \notep{Адрес хранится как беззнаковое число.}
+
+\end{frame}
+
+
+
 
 \section{Виды памяти}
 
@@ -351,3 +490,4 @@
 \plain{Конец третьей лекции}
 
 \end{document}
+

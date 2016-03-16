@@ -44,6 +44,8 @@
 
 \lstnewenvironment{clisting}[1][]{\lstset{language=myC,#1}}{}
 
+\newcommand{\comment}[1]{\color{codeComment}#1}
+
 % Workaround for unconditional parskip after lstlisting environment
 % See: http://tex.stackexchange.com/questions/40863/parskip-inserts-extra-space-after-floats-and-listings
 \newcommand{\revertListingParskip}{%
