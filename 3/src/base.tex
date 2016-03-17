@@ -233,9 +233,7 @@
 \begin{frame}[fragile]{«Возвращение» массивов из функций}
 
   \begin{clisting}
-    void reverse(int dst[], int src[],
-                 size_t size) {
-
+    void reverse(int dst[], int src[], size_t size) {
         for (size_t i = 0; i < size; i++) {
             dst[i] = src[size - i - 1];
         }
@@ -244,6 +242,7 @@
     int original[3] = {1, 2, 3};
     int reversed[3];
     reverse(reversed, original, 3);
+    // use reversed
   \end{clisting}
 
   \notep{Перекладываем ответственность за создание массива на вызывающую
@@ -352,23 +351,23 @@
   \end{center}
 
   \begin{columns}[onlytextwidth,T]
-    \begin{column}{0.35\textwidth}
+    \begin{column}{0.25\textwidth}
       \begin{clisting}[escapechar=\!]
         int x = 518;
         int y = 320;
       \end{clisting}
     \end{column}
 
-    \begin{column}{0.65\textwidth}<4->
+    \begin{column}{0.75\textwidth}<4->
       \begin{clisting}[escapechar=\!]
-        int* p;
+        int* ptr;
         !\onslide<5->!// !\comment\& - взятие адреса!
         // !\comment* - разыменование указателя!
-        p = &x;
-        printf("%p %d\n", p, *p); // 0x20 518
-        !\onslide<6->!p = &y;
-        printf("%p %d\n", p, *p); // 0x40 320
-        !\onslide<7->!*p = 999;
+        ptr = &x;
+        printf("%p %d\n", ptr, *ptr); // 0x20 518
+        !\onslide<6->!ptr = &y;
+        printf("%p %d\n", ptr, *ptr); // 0x40 320
+        !\onslide<7->!*ptr = 999;
         !\onslide<9->!printf("%d %d\n", x, y); // 518 999
       \end{clisting}
     \end{column}
@@ -463,7 +462,7 @@
 
     \begin{visibleenv}<2->
       \memblockwithaddrandlabel{6}{10}{px}%
-        {0x80}{0x84}%
+        {0x80}{0x83}%
         {px}
       \node<3-> [mem block] at (block px) {\ttfamily 0x20};
     \end{visibleenv}
@@ -731,6 +730,7 @@
   }{%
     «Какова природа void?»~--- спросил учитель, …
   }
+  \notep{Обязательно прочитать рассказ:\\http://thecodelesscode.com/case/5?lang=ru}
 
 \end{frame}
 
@@ -878,6 +878,7 @@
     }
     int original[3] = {1, 2, 3};
     int* reversed = reverse(original, 3);
+    // use reversed
     free(reversed);
   \end{clisting}
 
