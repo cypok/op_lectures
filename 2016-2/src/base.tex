@@ -3,23 +3,8 @@
 \input{lang-setup.sty}
 \input{tools.sty}
 
-% TODO: ugly hack for strange spacing in blocks
-\newcommand{\reduceBlockEqSpacing}{%
-  \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}%
-}
-
-% numbers formating: \num{123456}
-\usepackage{numprint}
-\newcommand{\num}[1]{\numprint{#1}}
-  \npthousandsep{\,}
-  \npthousandthpartsep{}
-  \npdecimalsign{,}
-
-\newcommand{\pcnum}[1]{\ensuremath{\mathtt{#1}}}
-\newcommand{\bin}[1]{\pcnum{#1}_2}
-\newcommand{\hex}[1]{\pcnum{#1}_{16}}
-
 \newcommand{\code}[1]{\texttt{#1}}
+
 
 \hypersetup{pdfauthor={Владимир Парфиненко}}
 \title{Основы программирования}

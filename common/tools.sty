@@ -17,6 +17,29 @@
 \newcommand{\notep}[1]{\note{#1\par}}
 
 
+% TODO: ugly hack for strange spacing in blocks
+\newcommand{\reduceBlockEqSpacing}{%
+  \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}%
+}
+
+% numbers formating: \num{123456}
+\usepackage{numprint}
+\newcommand{\num}[1]{\numprint{#1}}
+  \npthousandsep{\,}
+  \npthousandthpartsep{}
+  \npdecimalsign{,}
+
+\newcommand{\pcnum}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\bin}[1]{\pcnum{#1}_2}
+\newcommand{\hex}[1]{\pcnum{#1}_16}
+
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,matrix,positioning}
+\usetikzlibrary{decorations.pathmorphing,decorations.pathreplacing}
+\usetikzlibrary{arrows}
+
+
 \usepackage{listings}
 \usepackage{lstautogobble}
 \lstset{
