@@ -595,7 +595,7 @@
           {10, 20, 30},
           {40, 50, 60}};
 
-        !\onslide<3->!a[i][j] == *(a + i*3 + j);
+        !\onslide<3->!a[i][j] == *((short*)a + i*3 + j);
       \end{clisting}
     \end{column}
 
