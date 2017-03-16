@@ -88,3 +88,12 @@
     \addtocounter{framenumber}{\value{framenumberappendix}}
   }
 
+\usepackage{ifxetex}
+
+\ifxetex
+  \newfontfamily\DejaVuSans{DejaVu Sans}
+  \newcommand{\emoji}[1]{{\DejaVuSans \char"#1}}
+\else
+  \newcommand{\emoji}[1]{$\square$}
+\fi
+
