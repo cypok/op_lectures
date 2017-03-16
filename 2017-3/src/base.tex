@@ -256,6 +256,9 @@
   \end{tikzpicture}
   \end{center}
 
+  \notep{Выделение памяти под N целых чисел, где N задается во время исполнения
+    программы.}
+
   \begin{clisting}[escapechar=\!]
     int n = read_number(); // 5
     int* p; // !\comment\alt<3->{0x100}{???}!
@@ -471,7 +474,7 @@
 
   \pause
   \begin{clisting}
-    char *str = "Hi";
+    char* str = "Hi";
     printf("%s\n", str);                 // Hi
     printf("%d - %c\n", str[0], str[0]); // 72 - H
     printf("%d - %c\n", str[1], str[1]); // 105 - i
@@ -488,7 +491,7 @@
     \item
       @test@~--- указатель на константную строку.
       \begin{clisting}[escapechar=!]
-        char *test = "cat";
+        char* test = "cat";
         !\onslide<2->!test[2] = 'r'; !\onslide<3->!// run time error
       \end{clisting}
       \notep{В первом случае переменная test указывается на специальную область
