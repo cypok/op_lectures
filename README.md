@@ -7,7 +7,12 @@
 *   [Лекция № 3](https://speakerdeck.com/nsu_op/3-massivy-ukazatieli-pamiat):
     Массивы, указатели, память.
 
-В 2017 году...
+В 2017 году было прочитано две лекции:
+
+*   [Лекция № 2](https://speakerdeck.com/nsu_op/2-chisliennyie-tipy-dannykh-massivy-ukazatieli):
+    Численные типы данных, массивы, указатели.
+*   [Лекция № 3](https://speakerdeck.com/nsu_op/3-dinamichieskaia-pamiat-ukazatieli-na-funktsii-simvoly-stroki):
+    Динамическая память, указатели на функции, символы, строки.
 
 ## Инструментарий
 
