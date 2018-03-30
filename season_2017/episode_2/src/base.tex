@@ -6,7 +6,7 @@
 
 \hypersetup{pdfauthor={Владимир Владимирович Парфиненко}}
 \title{Основы программирования}
-\subtitle{Лекция № 2, 2 марта 2017 г.}
+\subtitle{Лекция № 2, 1 марта 2018 г.}
 \date{}
 \institute{
   \vspace{1em}
@@ -308,14 +308,13 @@
 
 
 \section{Массивы}
+\notep{
+  Мотивация: для задания квадратного уравнения нужно 3 переменные: a, b, c.
+  А что делать с уравнением 10-ой степени?
+  Правильно, нужен массив!
+}
 
 \begin{frame}[fragile]{Объявление массива}
-
-  \notep{
-    Мотивация: для задания квадратного уравнения нужно 3 переменные: a, b, c.
-    А что делать с уравнением 10-ой степени?
-    Правильно, нужен массив!
-  }
 
   Массив~--- упорядоченный набор элементов одного типа.
 
@@ -571,177 +570,8 @@
 \end{frame}
 
 
-\plain{Остальное не влезло в пару…}
-
-
-\begin{frame}[fragile]{Указатель, никуда не указывающий}
-
-  @NULL@~--- специальное константное значение, символизирующее, что указатель
-  не указывает ни на какой элемент памяти.
-  Объявлено в заголовочном файле @stdlib.h@.
-  \notep{Численное значение NULL == 0.}
-
-  \begin{clisting}[escapechar=\!]
-    int* ptr = NULL;
-    !\onslide<2->!int value = *ptr; !\onslide<3->!// run time error
-    !\onslide<2->!*ptr = 37; !\onslide<3->!// run time error
-  \end{clisting}
-
-  \onslide<3->
-  Разные названия, но суть одна (segmentation fault, segfault, access
-  violation, «Программа выполнила недопустимую операцию…», …).
-
-\end{frame}
-
-\begin{frame}[fragile]{Указатель, указывающий хоть куда}
-
-  @void*@~--- специальный тип указателя, который может указывать на любой адрес
-  в памяти. Может быть приведен к любому другому типу указателей и обратно.
-
-  \begin{clisting}[escapechar=\!]
-    double x = 37;
-    double* px = &x;
-    void* p = px;
-    int* py = p;
-  \end{clisting}
-  \notep{Указатель трактует указываемое содержимое как int, хотя на самом
-    деле там находится double~--- это потенциальная ошибка.}
-
-  \pause
-  \href{%
-    http://thecodelesscode.com/case/5?lang=ru%
-  }{%
-    Минутка философии: «Какова природа void?»~--- спросил учитель, …
-  }
-  \notep{Обязательно прочитать рассказ:\\http://thecodelesscode.com/case/5?lang=ru}
-
-\end{frame}
-
-
-\section{Динамическая память}
-
-\begin{frame}[fragile]{Преимущества динамической памяти}
-
-  \begin{itemize}[<+->]
-    \item Выделяется и освобождается динамически по запросу программы.
-          \notep{Внутри функции нельзя создать массив, который будет
-            существовать после выхода из нее.}
-    \item Размер задается динамически.
-          \notep{Размер массива должен быть известен на момент компиляции
-            программы.}
-  \end{itemize}
-
-  \notep{Самый гибкий и самый сложный в работе вид памяти.}
-
-  \notep{Есть еще автоматическая и статическая память, но их описание выходит
-    за рамки данной лекции. Их основные недостатки: фиксированный размер и
-    недостаточно гибкое время жизни.}
-
-\end{frame}
-
-\begin{frame}[fragile]{Выделение блока памяти}
-
-  \begin{clisting}[basicstyle=\ttfamily]
-    void* malloc(size_t size);
-  \end{clisting}
-  \revertListingParskip
-  Функция выделяет блок памяти размером @size@ байт и возвращает указатель на
-  начало блока. \alert<2>{В случае, если память выделить не получилось,
-  возвращает \texttt{NULL}.}
-  Объявлена в заголовочном файле @stdlib.h@.
-
-  \notep{malloc = Memory ALLOCate}
-  \notep{size\_t - беззнаковый целочисленный тип данных, подходящий для хранения
-    любого размера в байтах.}
-  \notep{Другие функции для выделения памяти (calloc, realloc) выходят за рамки
-    данного курса.}
-
-\end{frame}
-
-\begin{frame}[fragile]{Освобождение блока памяти}
-
-  \begin{clisting}[basicstyle=\ttfamily]
-    void free(void* ptr);
-  \end{clisting}
-
-  Функция освобождает блок памяти. Если @ptr@ равен @NULL@, ничего не делает.
-  Объявлена в заголовочном файле @stdlib.h@.
-
-  \pause
-  После вызова значение указателя @ptr@ остается прежним, но разыменовывать его
-  нельзя.
-
-  \pause
-  Неиспользуемую память нужно обязательно освобождать, иначе рано или поздно
-  она может кончиться (утечка памяти).
-
-  \notep{Утечки памяти на серверных приложениях, которые должны работать
-    несколько лет, недопустимы.}
-
-  \notep{Утечки памяти в десктопных приложениях не так критичны, но могут и
-    причинять неудобства (см. современные браузеры).}
-
-\end{frame}
-
-\begin{frame}[fragile]{Пример: массив динамического размера}
-
-  \begin{center}
-  \begin{tikzpicture}[
-      scale=0.6,
-  ]
-    \memline{1}{23}
-
-    \begin{visibleenv}<3-6>
-      \memblock{2}{6}{p0}
-      \memblock{6}{10}{p1}
-      \memblock{10}{14}{p2}
-      \memblock{14}{18}{p3}
-      \memblock{18}{22}{p4}
-
-      \node [mem block] at (block p1) {???};
-      \node [mem block] at (block p3) {???};
-    \end{visibleenv}
-
-    \begin{visibleenv}<3->
-      \memaddr{2}{0x100}
-      \memaddr{21}{0x113}
-    \end{visibleenv}
-
-    \begin{visibleenv}<3-4>
-      \node [mem block] at (block p0) {???};
-      \node [mem block] at (block p2) {???};
-      \node [mem block] at (block p4) {???};
-    \end{visibleenv}
-    \begin{visibleenv}<5-6>
-      \node [mem block] at (block p0) {37};
-      \node [mem block] at (block p2) {37};
-      \node [mem block] at (block p4) {37};
-    \end{visibleenv}
-
-    \begin{visibleenv}<7->
-      \node [fill=white] at (block p0) {???};
-      \node [fill=white] at (block p1) {???};
-      \node [fill=white] at (block p2) {???};
-      \node [fill=white] at (block p3) {???};
-      \node [fill=white] at (block p4) {???};
-    \end{visibleenv}
-
-  \end{tikzpicture}
-  \end{center}
-
-  \begin{clisting}[escapechar=\!]
-    int n = read_number(); // 5
-    int* p; // !\comment\alt<3->{0x100}{???}!
-    !\onslide<2->!p = malloc(n * sizeof(int));
-    if (p == NULL) { /* error */ }
-    !\onslide<4->!p[0] = p[n/2] = p[n-1] = 37;
-    !\onslide<6->!free(p);
-  \end{clisting}
-
-  \notep{sizeof~--- оператор, выдающий размер типов данных. Например, на Intel
-    x86 sizeof(int) == 4.}
-
-\end{frame}
+\plain{Остальное не влезло в пару… Про запас нужно взять несколько слайдов со
+следующей лекции.}
 
 
 \plain{Конец второй лекции}
@@ -841,47 +671,6 @@ fabs(y1 - y2) < 0.00001f; // => 1
   }{%
     github.com/cypok/floats-comparison
   }
-
-\end{frame}
-
-
-\begin{frame}[fragile]{Статическая память}
-
-  Примеры:
-  \begin{itemize}
-    \item глобальные переменные: @char game_field[100][100]@,
-    \item строковые литералы: @"Hello world!"@,
-    \item ...
-      \notep{К статической памяти также относятся static-переменные.}
-  \end{itemize}
-
-  \pause
-  Свойства:
-  \begin{itemize}
-    \item выделяется во время старта программы,
-    \item освобождается во время завершения программы,
-    \item инициализируется нулевыми значениями,
-    \item фиксированный размер.
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}[fragile]{Автоматическая память}
-
-  Примеры:
-  \begin{itemize}
-    \item локальные переменные: @{...; int tmp; ...}@,
-    \item аргументы функций: @(..., double speed, ...)@,
-  \end{itemize}
-
-  \pause
-  Свойства:
-  \begin{itemize}
-    \item выделяется при входе в объемлющий блок,
-    \item освобождается при выходе из объемлющего блока,
-    \item изначально не инициализирована,
-    \item фиксированный размер.
-  \end{itemize}
 
 \end{frame}
 
