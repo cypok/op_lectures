@@ -6,7 +6,7 @@
 
 \hypersetup{pdfauthor={Владимир Владимирович Парфиненко}}
 \title{Основы программирования}
-\subtitle{Лекция № 2, 1 марта 2018 г.}
+\subtitle{Лекция № 2, 28 февраля 2019 г.}
 \date{}
 \institute{
   \vspace{1em}
@@ -35,8 +35,8 @@
   Я~--- Владимир Владимирович Парфиненко,
 
   \begin{itemize}
-    \item бакалавр физики (ФФ), магистр математики (ММФ),
-    \item профессиональный программист (Excelsior),
+    \item бакалавр физики (АФТИ ФФ), магистр математики (ММФ),
+    \item профессиональный системный программист (Excelsior),
     \item регулярно чему-то учу (ФФ, АФТИ, ЛШ ФМШ).
   \end{itemize}
 
@@ -123,6 +123,12 @@
         Знак хранится в тех же самых 8/16/... битах.
         Детали представления отрицательных чисел выходят за рамки данной
         лекции.
+      }
+
+      \notep{
+        Форматный спецификатор для int - \%i или \%d.\\
+        Форматный спецификатор для unsigned - \%u.\\
+        Для long long добавляется ll после \% (например, \%lli).
       }
 
     \end{tabular}
@@ -216,6 +222,34 @@
 
 \end{frame}
 
+\begin{frame}[fragile]{Загадка: модуль числа неотрицательный?}
+
+  \begin{block}{Вычисление модуля введенного числа:}
+    \begin{lstlisting}[language=C]
+    int x;
+    printf("Enter number: ");
+    scanf("%d", &x);
+    if (x < 0) {
+        x = -x;
+    }
+    printf("Absolute value = %d\n", x);
+    \end{lstlisting}
+  \end{block}
+
+  \begin{block}{Исполнение:}
+    \begin{onlyenv}<1>\begin{lstlisting}
+    Enter number: -37
+    Absolute value = 37
+    \end{lstlisting}\end{onlyenv}
+    \begin{onlyenv}<2>\begin{lstlisting}
+    Enter number: -2147483648
+    Absolute value = -2147483648
+    \end{lstlisting}\end{onlyenv}
+    \notep{Все из-за переполнения.}
+  \end{block}
+
+\end{frame}
+
 
 \section{Вещественные типы данных}
 
@@ -251,7 +285,10 @@
     точность binary64: $\log_{10}(2^{52}+1) \approx \num{15.955}$.
   }
   \notep{Мин. и макс. значения даны для нормализованных чисел.}
-  \notep{Проще всегда использовать double.}
+  \notep{
+    Форматный спецификатор для float - \%f или \%g.\\
+    Форматный спецификатор для double - \%lf или \%lg.
+  }
 
 
 
@@ -301,8 +338,68 @@
     \item Сравнение чисел.
   \end{itemize}
 
-  \notep{Вещественные числа нужно сравнивать приблизительно. Подробности
-    выходят за рамки этой лекции.}
+\end{frame}
+
+
+\begin{frame}[fragile]{Неправильное сравнение чисел}
+
+  \begin{columns}[onlytextwidth,c]
+    \begin{column}{0.6\textwidth}
+      \begin{lstlisting}[language=C,escapechar=\!]
+float x = 0.1f;
+float y1 = x * x;
+float y2 = 0.01f;
+
+y1 == y2; !\visible<2->{\color{codeComment}// => 0}!
+      \end{lstlisting}
+    \end{column}
+
+    \begin{column}<3->{0.4\textwidth}
+      \includegraphics[width=\linewidth]{meme_why}
+    \end{column}
+
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{Причина неправильного сравнения чисел}
+
+  \begin{lstlisting}[language=C,escapechar=\!]
+float x = 0.1f; // 0.100000001490
+float y1 = x * x;
+// 0.010000000708 =
+//    0 01111000 0100011110101110000101!\alert{1}!
+float y2 = 0.01f;
+// 0.009999999776 =
+//    0 01111000 0100011110101110000101!\alert{0}!
+
+y1 == y2; // => 0
+  \end{lstlisting}
+  \notep{Отличие в одном бите мантиссы в бинарном представлении.}
+
+\end{frame}
+
+\begin{frame}[fragile]{Правильное сравнение чисел}
+
+  Идея:
+  \begin{lstlisting}[language=C]
+fabs(y1 - y2) < 0.00001f; // => 1
+  \end{lstlisting}
+
+  \pause
+
+  Но нужно так же учесть:
+  \begin{itemize}
+    \item очень большие и очень маленькие числа,
+    \item бесконечности,
+    \item \ldots
+  \end{itemize}
+
+  Реализация: \href{%
+    https://github.com/cypok/floats-comparison%
+  }{%
+    github.com/cypok/floats-comparison
+  }
 
 \end{frame}
 
@@ -364,18 +461,30 @@
   \notep{Индексы в массиве от 0 до N-1.}
 
   \pause
-  Чтение элемента из массива по индексу @i@:
-  \begin{clisting}
-    T value = arr[i];
-  \end{clisting}
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        T old_value = arr[i];
+      \end{clisting}
+    \end{column}
 
-  Запись элемента в массив по индексу @i@:
-  \begin{clisting}
-    arr[i] = new_value;
-  \end{clisting}
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        arr[i] = new_value;
+      \end{clisting}
+    \end{column}
+  \end{columns}
 
   \notep{Доступ по недопустимому индексу (-1, N, 2*N)~--- неопределенное
     поведение.}
+
+  \pause
+  Пример заполнения массива "квадратами":
+  \begin{clisting}
+    int squares[10]; // 0, 1, 4, 9, 16, 25, 36, 49, 64, 81
+    for (int i = 0; i < 10; i++)
+      squares[i] = i * i;
+  \end{clisting}
 
 \end{frame}
 
@@ -530,11 +639,11 @@
       {0x24}%
       {a[2]}
 
-    \node [mem block] at (block a0) {10};
-    \node<-5> [mem block] at (block a1) {20};
-    \node<6-> [mem block] at (block a1) {200};
-    \node<-7> [mem block] at (block a2) {30};
-    \node<8-> [mem block] at (block a2) {230};
+    \node [mem block] at (block a0) {37};
+    \node<-5> [mem block] at (block a1) {11};
+    \node<6-> [mem block] at (block a1) {110};
+    \node<-7> [mem block] at (block a2) {76};
+    \node<8-> [mem block] at (block a2) {186};
 
   \end{tikzpicture}
   \end{visibleenv}
@@ -543,7 +652,7 @@
   \begin{columns}[onlytextwidth,T]<-13>
     \begin{column}{0.5\textwidth}
       \begin{clisting}[escapechar=\!]
-        short a[3] = {10, 20, 30};
+        short a[3] = {37, 11, 76};
 
         !\onslide<3->!short* p = !\temporal<12>{!\&(a[0])!}{!\&(*(a))!}{!a!}!; // 0x20
         !\onslide<4->!short* p1 = p + 1;  // 0x22
@@ -553,7 +662,7 @@
 
     \begin{column}{0.45\textwidth}
       \begin{clisting}[escapechar=\!]
-        !\onslide<5->!!\temporal<9-10>{!*p1!}{!*(p+1)!}{!p[1]!}! = 200;
+        !\onslide<5->!!\temporal<9-10>{!*p1!}{!*(p+1)!}{!p[1]!}! = 110;
         !\onslide<7->!!\temporal<9-10>{!*p2!}{!*(p+2)!}{!p[2]!}! = !\temporal<9-10>{!*p1!}{!*(p+1)!}{!p[1]!}! + !\temporal<9-10>{!*p2!}{!*(p+2)!}{!p[2]!}!;
         !\onslide<10->!// *(x + y) == x[y]
       \end{clisting}
@@ -569,9 +678,58 @@
 
 \end{frame}
 
+\begin{frame}[fragile]{Указатель, никуда не указывающий}
 
-\plain{Остальное не влезло в пару… Про запас нужно взять несколько слайдов со
-следующей лекции.}
+  @NULL@~--- специальное константное значение, символизирующее, что указатель
+  не указывает ни на какую память.
+  Объявлено в заголовочном файле @stdlib.h@.
+  \notep{Численное значение NULL == 0.}
+
+  \begin{clisting}[escapechar=\!]
+    int* ptr = NULL;
+    !\onslide<2->!int value = *ptr; !\onslide<3->!// undefined behavior
+    !\onslide<2->!*ptr = 37; !\onslide<3->!// undefined behavior
+  \end{clisting}
+
+  \onslide<3->
+  Данное «неопределенное поведение» чаще всего заканчивается фатальной ошибкой
+  (segmentation fault, segfault, access violation,
+  «Программа выполнила недопустимую операцию…», …).
+  \notep{
+    Но может и удалить все файлы на вашем компьютере:\\
+    % url и href выдают спецэффекты и не работают, почему-то.
+    % pdf viewer сам подсвечивает ссылку.
+    % маленький размер используется, чтобы влезть в ширину, иначе
+    % подсвечивается неправильно.
+    % TODO: разобраться
+    \scriptsize{https://kristerw.blogspot.com/2017/09/why-undefined-behavior-may-call-never.html}\\
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]{Указатель, указывающий хоть куда}
+
+  @void*@~--- специальный тип указателя, который может указывать на любые
+  данные в памяти.
+  Может быть приведен к любому другому типу указателей и обратно.
+
+  \begin{clisting}[escapechar=\!]
+    double x = 37;
+    double* px = &x;
+    void* p = px;
+    int* py = p;
+  \end{clisting}
+  \notep{Указатель трактует указываемое содержимое как int, хотя на самом
+    деле там находится double~--- это потенциальная ошибка.}
+
+  \pause
+
+  \vspace{1em}
+  \emph{Минутка философии: «Какова природа void?»~--- спросил учитель, …}
+  \url{http://thecodelesscode.com/case/5?lang=ru}
+  \notep{Обязательно прочитать рассказ по ссылке.}
+
+\end{frame}
 
 
 \plain{Конец второй лекции}
@@ -579,101 +737,9 @@
 
 \begin{backup}
 
-
 \section{Секретные слайды}
 
-
-\begin{frame}[fragile]{Загадка: модуль числа неотрицательный?}
-
-  \begin{block}{Вычисление модуля введенного числа:}
-    \begin{lstlisting}[language=C]
-    int x;
-    printf("Enter number: ");
-    scanf("%d", &x);
-    if (x < 0) {
-        x = -x;
-    }
-    printf("Absolute value = %d\n", x);
-    \end{lstlisting}
-  \end{block}
-
-  \begin{block}{Исполнение:}
-    \begin{onlyenv}<1>\begin{lstlisting}
-    Enter number: -37
-    Absolute value = 37
-    \end{lstlisting}\end{onlyenv}
-    \begin{onlyenv}<2>\begin{lstlisting}
-    Enter number: -2147483648
-    Absolute value = -2147483648
-    \end{lstlisting}\end{onlyenv}
-    \notep{Все из-за переполнения.}
-  \end{block}
-
-\end{frame}
-
-
-\begin{frame}[fragile]{Неправильное сравнение чисел}
-
-  \begin{columns}[onlytextwidth,c]
-    \begin{column}{0.6\textwidth}
-      \begin{lstlisting}[language=C,escapechar=\!]
-float x = 0.1f;
-float y1 = x * x;
-float y2 = 0.01f;
-
-y1 == y2; !\visible<2->{\color{codeComment}// => 0}!
-      \end{lstlisting}
-    \end{column}
-
-    \begin{column}<3->{0.4\textwidth}
-      \includegraphics[width=\linewidth]{meme_why}
-    \end{column}
-
-  \end{columns}
-
-\end{frame}
-
-\begin{frame}[fragile]{Причина неправильного сравнения чисел}
-
-  \begin{lstlisting}[language=C,escapechar=\!]
-float x = 0.1f; // 0.100000001490
-float y1 = x * x;
-// 0.010000000708 =
-//    0 01111000 0100011110101110000101!\alert{1}!
-float y2 = 0.01f;
-// 0.009999999776 =
-//    0 01111000 0100011110101110000101!\alert{0}!
-
-y1 == y2; // => 0
-  \end{lstlisting}
-  \notep{Отличие в одном бите мантиссы в бинарном представлении.}
-
-\end{frame}
-
-\begin{frame}[fragile]{Правильное сравнение чисел}
-
-  Идея:
-  \begin{lstlisting}[language=C]
-fabs(y1 - y2) < 0.00001f; // => 1
-  \end{lstlisting}
-
-  \pause
-
-  Но нужно так же учесть:
-  \begin{itemize}
-    \item очень большие и очень маленькие числа,
-    \item бесконечности,
-    \item \ldots
-  \end{itemize}
-
-  Реализация: \href{%
-    https://github.com/cypok/floats-comparison%
-  }{%
-    github.com/cypok/floats-comparison
-  }
-
-\end{frame}
-
+\plain{Про запас нужно взять несколько секретных слайдов.}
 
 \end{backup}
 

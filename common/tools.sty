@@ -17,13 +17,16 @@
 %     --landscape \
 %     --papersize '{9cm,16cm}'
 
-%\setbeameroption{show notes on second screen}
-%\setbeameroption{show only notes}
-%\setbeameroption{show notes}
+\setbeameroption{show notes on second screen=right}
+% \setbeameroption{show only notes}
+\setbeameroption{show notes}
 \setbeamertemplate{note page}[minimal]
 \setbeamercolor{note page}{bg=black!5}
 
 \newcommand{\notep}[1]{\note{#1\par}}
+
+% \usepackage{pdfcomment}
+% \newcommand{\notep}[1]{\marginnote{\pdfcomment[icon=note]{#1}}}
 
 
 % TODO: ugly hack for strange spacing in blocks

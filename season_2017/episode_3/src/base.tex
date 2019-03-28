@@ -6,7 +6,7 @@
 
 \hypersetup{pdfauthor={Владимир Владимирович Парфиненко}}
 \title{Основы программирования}
-\subtitle{Лекция № 3, 15 марта 2018 г.}
+\subtitle{Лекция № 3, 14 марта 2019 г.}
 \date{}
 \institute{
   \vspace{1em}
@@ -27,9 +27,6 @@
 \begin{frame}[plain]
   \titlepage
 \end{frame}
-
-
-\section{Указатели (продолжение)}
 
 \tikzset{
   byte lines/.style={black!30},
@@ -99,60 +96,6 @@
   \memblockwithoneaddr{#1}{#2}{#3}{#4}
   \memlabel{#1}{#2}{#5}
 }
-
-
-\begin{frame}[fragile]{Указатель, никуда не указывающий}
-
-  @NULL@~--- специальное константное значение, символизирующее, что указатель
-  не указывает ни на какую память.
-  Объявлено в заголовочном файле @stdlib.h@.
-  \notep{Численное значение NULL == 0.}
-
-  \begin{clisting}[escapechar=\!]
-    int* ptr = NULL;
-    !\onslide<2->!int value = *ptr; !\onslide<3->!// undefined behavior
-    !\onslide<2->!*ptr = 37; !\onslide<3->!// undefined behavior
-  \end{clisting}
-
-  \onslide<3->
-  Данное «неопределенное поведение» чаще всего заканчивается фатальной ошибкой
-  (segmentation fault, segfault, access violation,
-  «Программа выполнила недопустимую операцию…», …).
-  \notep{
-    Но может и удалить все файлы на вашем компьютере:\\
-    % url и href выдают спецэффекты и не работают, почему-то.
-    % pdf viewer сам подсвечивает ссылку.
-    % маленький размер используется, чтобы влезть в ширину, иначе
-    % подсвечивается неправильно.
-    % TOOD: разобраться
-    \scriptsize{https://kristerw.blogspot.com/2017/09/why-undefined-behavior-may-call-never.html}\\
-  }
-
-\end{frame}
-
-\begin{frame}[fragile]{Указатель, указывающий хоть куда}
-
-  @void*@~--- специальный тип указателя, который может указывать на любые
-  данные в памяти.
-  Может быть приведен к любому другому типу указателей и обратно.
-
-  \begin{clisting}[escapechar=\!]
-    double x = 37;
-    double* px = &x;
-    void* p = px;
-    int* py = p;
-  \end{clisting}
-  \notep{Указатель трактует указываемое содержимое как int, хотя на самом
-    деле там находится double~--- это потенциальная ошибка.}
-
-  \pause
-
-  \vspace{1em}
-  \emph{Минутка философии: «Какова природа void?»~--- спросил учитель, …}
-  \url{http://thecodelesscode.com/case/5?lang=ru}
-  \notep{Обязательно прочитать рассказ по ссылке.}
-
-\end{frame}
 
 
 \section{Динамическая память}
@@ -493,6 +436,8 @@
 
   \notep{Размер массива, в котором хранится строка "Hi"{}~--- 3 байта.}
 
+  \notep{Как правильно считать строку будет рассказано на последующих лекциях.}
+
 \end{frame}
 
 \begin{frame}[fragile]{Тонкость с инициализацией строк}
@@ -511,7 +456,7 @@
     \item
       @test@~--- массив, проинициализированный константной строкой.
       \begin{clisting}[escapechar=!]
-        char test[] = "cat";
+        char test[] = "cat"; // = {'c', 'a', 't', '\0'}
         !\onslide<5->!test[2] = 'r';
         !\onslide<6->!printf("%s\n", test); // car
       \end{clisting}
@@ -523,11 +468,120 @@
 
 \end{frame}
 
+\begin{frame}[fragile]{Пример: подсчет длины строки}
 
-\plain{Про запас нужно взять несколько секретных слайдов с предыдущей лекции.}
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.45\textwidth}
+      \begin{clisting}
+        size_t strlen1(char* s) {
+          size_t i = 0;
+          while (s[i] != '\0') {
+            i++;
+          }
+          return i;
+        }
+      \end{clisting}
+
+      \notep{strlen1 - перебирает символы строки как элементы массива}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{clisting}
+        size_t strlen2(char* s) {
+          char* p = s;
+          while (*p != '\0') {
+            p++;
+          }
+          return p - s;
+        }
+      \end{clisting}
+
+      \notep{strlen2 - перемещает указатель на символ}
+    \end{column}
+  \end{columns}
+
+  \vspace{1em}
+
+  \begin{clisting}
+    size_t len = strlen1("NSU")); // 3
+  \end{clisting}
+
+\end{frame}
+
+\plain{Материал «со звездочкой»}
+
+\begin{frame}[fragile]{Пример: возврат двух значений из функции}
+
+  \begin{center}
+  \begin{visibleenv}<3->
+  \begin{tikzpicture}[
+      scale=0.8,
+  ]
+    \memline{1}{7}
+    \memblockwithaddrandlabel{2}{6}{q}%
+      {0x20}{0x23}%
+      {q}
+
+    \memline{8}{14}
+    \memblockwithaddrandlabel{9}{13}{r}%
+      {0x40}{0x43}%
+      {r}
+
+
+    \node<4-8> [mem block] at (block q) {???};
+    \node<9-> [mem block] at (block q) {12};
+
+    \node<4-10> [mem block] at (block r) {???};
+    \node<11-> [mem block] at (block r) {3};
+
+  \end{tikzpicture}
+  \end{visibleenv}
+  \end{center}
+
+  \begin{columns}[onlytextwidth,T]
+    \begin{column}{0.5\textwidth}
+      \begin{clisting}[escapechar=\!]
+        void divide(
+            int a, int b, !\onslide<6->{\comment// 123, 10}!
+            int* pq, !\onslide<7->{\comment// 0x20}!
+            int* pr) !\onslide<7->{\comment// 0x40}!
+        {
+          *pq = a / b; !\onslide<8->{\comment// *(0x20) = 12}!
+          *pr = a % b; !\onslide<10->{\comment// *(0x40) = 3}!
+        }
+      \end{clisting}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}<2->
+      \begin{clisting}[escapechar=\!]
+        int x = 123, y = 10;
+        int q, r;
+
+        !\onslide<5->!divide(x, y, &q, &r);
+        !\onslide<12->!printf("%d = %d * %d + %d\n",
+          x, y, q, r);
+        // 123 = 10 * 12 + 3
+      \end{clisting}
+    \end{column}
+
+  \end{columns}
+
+  \notep{x, y передаются по значению, q, r передаются по указателю.}
+  \notep{Модификация a и b в функции никак не изменит значения x, y.}
+  \notep{Однако запись по указателям pq, pr непосредственно меняет значения
+    q, r.}
+
+\end{frame}
 
 
 \plain{Конец третьей лекции}
 
+
+\begin{backup}
+
+\section{Секретные слайды}
+
+\plain{Про запас нужно взять несколько секретных слайдов.}
+
+\end{backup}
 
 \end{document}
